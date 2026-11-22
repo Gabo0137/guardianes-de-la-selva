@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Laberinto | Guardianes de la Selva</title>
+    <link rel="icon" type="image/png" href="murcielago.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Nunito:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-night: #081814;
+            --panel-bg: #102a23;
+            --border-gold: #d4af37;
+            --cream-text: #f4f1ea;
+            --accent-lime: #a3c954;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: var(--bg-night);
+            color: var(--cream-text);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        h1, h2, h3, .font-display {
+            font-family: 'Fredoka', sans-serif;
+        }
+
+        /* Estilo de paneles tipo infografía ecológica */
+        .eco-card {
+            background: linear-gradient(145deg, #12332a 0%, #0b211b 100%);
+            border: 2px solid #28594b;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+        }
+
+        .eco-header-badge {
+            background-color: #163e34;
+            border: 1.5px solid #a3c954;
+            color: #f4f1ea;
+        }
+
+        /* Contenedor del Canvas del Laberinto */
+        #maze-wrapper {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 15 / 13;
+            max-width: 720px;
+            background: #061310;
+            border: 3px solid #2f6958;
+            border-radius: 1rem;
+            box-shadow: 0 0 30px rgba(163, 201, 84, 0.15), inset 0 0 40px rgba(0, 0, 0, 0.8);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* Botones estilo juego arcade natural */
+        button {
+            transition: background-color 0.2s ease, color 0.2s ease, filter 0.2s ease, transform 0.2s ease;
+        }
+
+        .game-btn {
+            background: linear-gradient(180deg, #a3c954 0%, #7aa132 100%);
+            color: #091c17;
+            font-family: 'Fredoka', sans-serif;
+            font-weight: 700;
+            border: 2px solid #d5ed9f;
+            box-shadow: 0 4px 0 #486318, 0 8px 15px rgba(0,0,0,0.4);
+            transition: all 0.2s ease;
+        }
+
+        button:active, button.is-active {
+            background: var(--border-gold) !important;
+            color: #091c17 !important;
+            filter: none;
+        }
+
+        .game-btn:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.06);
+        }
+
+        .game-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #486318, 0 3px 6px rgba(0,0,0,0.4);
+        }
+
+        /* Controles táctiles D-Pad */
+        .dpad-btn {
+            background: linear-gradient(145deg, #1b4a3e, #102e26);
+            border: 2px solid #488c7a;
+            box-shadow: 0 4px 0 #071713;
+            color: #f4f1ea;
+            transition: transform 0.08s, background 0.08s;
+        }
+
+        .dpad-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #071713;
+            background: #286958;
+        }
+
+        /* Animaciones */
+        @keyframes floatPulse {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-4px); }
+        }
+
+        .animate-float {
+            animation: floatPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes flashRed {
+            0%, 100% { box-shadow: 0 0 30px rgba(163, 201, 84, 0.15); border-color: #2f6958; }
+            50% { box-shadow: 0 0 35px rgba(239, 68, 68, 0.8); border-color: #ef4444; }
+        }
+
+        .damage-flash {
+            animation: flashRed 0.45s ease-in-out 2;
+        }
+
+        /* Scrollbar personalizado para la lista de especies */
+        .species-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        .species-scroll::-webkit-scrollbar-track {
+            background: #091c17;
+            border-radius: 4px;
+        }
+        .species-scroll::-webkit-scrollbar-thumb {
+            background: #2f6958;
+            border-radius: 4px;
+        }
+        .keyboard-hint { margin: 0.4rem 0 0; text-align: center; color: #a3c954; font-size: 0.85rem; } body { background: radial-gradient(circle at 80% 10%, #245144, #071f20 55%) !important; } body > main { max-width: none !important; padding-left: 0.5rem; padding-right: 0.5rem; gap: 0.75rem; }        html, body { height: 100%; overflow: hidden; } body { min-height: 0 !important; } body > main { min-height: 0; height: calc(100vh - 125px); overflow: hidden; } #maze-wrapper { max-height: calc(100vh - 300px); } @media (min-width: 1024px) { body > main { grid-template-columns: repeat(12, minmax(0, 1fr)) !important; gap: 1.25rem; align-items: stretch; } body > main > section { grid-column: span 6 / span 6 !important; } body > main > aside { grid-column: span 6 / span 6 !important; max-height: none !important; height: calc(100vh - 125px) !important; min-height: 0; margin-top: 0; overflow: hidden; } .species-scroll { min-height: 0; overflow-y: auto; scrollbar-width: thin; scrollbar-color: #3a7867 #091c17; } #maze-wrapper { max-width: none; width: 100%; height: calc(100vh - 125px); max-height: none; aspect-ratio: auto; } }    </style>
+<style>
+.main-nav .nav-active{background:#b9dc82!important;color:#102a22!important;border-color:#b9dc82!important;box-shadow:0 0 0 3px #b9dc8240,0 0 18px #b9dc8266}
+.main-nav .nav-active:hover{background:#d7f39b!important;color:#102a22!important}
+</style>
+<style>
+/* Centro de juegos y Memorama */
+.game-content-hidden{display:none!important}.game-title-group{position:static;transform:none;white-space:nowrap}.game-menu-button{position:relative;z-index:2;display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;border:2px solid #d5ed9f;border-radius:12px;background:linear-gradient(180deg,#a3c954 0%,#7aa132 100%);color:#091c17;font-size:1.45rem;font-weight:800;box-shadow:0 4px 0 #486318,0 8px 15px #0006}.game-menu-button:hover{transform:translateY(-2px);filter:brightness(1.06)}.memory-status-bar{display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap}.memory-status-bar .memory-stat{min-width:112px}.game-content-hidden + .memory-status-bar{display:none}
+[data-game-screen="aventuras"] #game-title-group>div:first-child{display:none}
+.game-selection{flex:1 1 auto;min-height:0;width:min(100%,1080px);margin:0 auto;padding:clamp(18px,4vw,48px) 8px;display:flex;flex-direction:column;justify-content:center;gap:24px}
+.game-selection-heading{text-align:center}.game-selection-heading h2{margin:0;color:#f4f1ea;font-size:clamp(1.7rem,4vw,3rem);font-family:'Fredoka',sans-serif}.game-selection-heading p{margin:.5rem auto 0;color:#c4d8c5;max-width:680px}
+.game-choice-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:22px}.game-choice{display:flex;flex-direction:column;min-height:360px;overflow:hidden;border:1px solid #3a7867;border-radius:24px;background:linear-gradient(145deg,#12392f,#0a211b);box-shadow:0 16px 34px #0007;transition:transform .25s ease,box-shadow .25s ease,border-color .25s ease}.game-choice:hover{transform:translateY(-5px);border-color:#a3c954;box-shadow:0 20px 38px #0008,0 0 0 2px #a3c95422}.game-choice-art{height:170px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(circle at 50% 25%,#315d43,#0b2923 72%);border-bottom:1px solid #3a7867}.game-choice-art img{width:100%;height:100%;object-fit:cover;display:block}.game-choice-body{display:flex;flex:1;flex-direction:column;padding:22px}.game-choice-body h3{margin:0;color:#f4f1ea;font:700 clamp(1.35rem,3vw,2rem) 'Fredoka',sans-serif}.game-choice-body p{margin:10px 0 20px;color:#d6e5d4;line-height:1.5}.game-choice-body .game-btn{align-self:flex-start;margin-top:auto}
+.memory-view{flex:1 1 auto;min-height:0;width:min(100%,1120px);margin:0 auto;padding:14px 8px 22px;display:flex;flex-direction:column;gap:12px}.memory-topbar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.memory-topbar h2{margin:0;color:#f4f1ea;font:700 clamp(1.5rem,3vw,2.4rem) 'Fredoka',sans-serif}.memory-actions{display:flex;gap:8px;flex-wrap:wrap}.memory-stats{display:flex;justify-content:center;gap:10px;flex-wrap:wrap}.memory-stat{min-width:112px;padding:8px 14px;text-align:center;border:1px solid #2f6958;border-radius:14px;background:#081a15;color:#cce6c8}.memory-stat b{display:block;color:#a3c954;font-size:1.25rem}.memory-feedback{min-height:24px;text-align:center;color:#d5ed9f;font-weight:700}.memory-board{width:min(100%,760px);margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;perspective:1000px}.memory-card{position:relative;aspect-ratio:1/1.08;border:0;padding:0;background:transparent;cursor:pointer;perspective:1000px}.memory-card:focus-visible{outline:3px solid #f5cb72;outline-offset:3px;border-radius:16px}.memory-card-inner{position:absolute;inset:0;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.2,.75,.25,1)}.memory-card.flipped .memory-card-inner,.memory-card.matched .memory-card-inner{transform:rotateY(180deg)}.memory-face{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;border-radius:16px;backface-visibility:hidden;overflow:hidden;border:2px solid #3a7867;box-shadow:0 8px 16px #0005}.memory-back{background:radial-gradient(circle at 50% 35%,#32694d,#102e25 68%);color:#c7e893;font-size:clamp(2rem,5vw,3.4rem)}.memory-front{transform:rotateY(180deg);background:#f4efda;padding:0}.memory-front img{width:100%;height:100%;object-fit:cover;object-position:center;border-radius:14px}.memory-card.matched .memory-face{border-color:#b9dc82;box-shadow:0 0 0 3px #b9dc8255,0 0 22px #b9dc8266}.memory-card.matched{animation:memoryMatch .55s ease}.memory-complete{position:fixed;inset:0;z-index:80;display:flex;align-items:center;justify-content:center;padding:20px;background:#061410d9;backdrop-filter:blur(5px)}.memory-complete.hidden{display:none}.memory-complete-card{width:min(100%,520px);padding:32px;text-align:center;border:1px solid #a3c954;border-radius:24px;background:linear-gradient(145deg,#173f32,#0a211b);box-shadow:0 18px 45px #0009}.memory-complete-card h2{margin:0 0 10px;color:#d5ed9f;font-family:'Fredoka',sans-serif}.memory-complete-card p{color:#f4f1ea}.memory-complete-card .game-btn{margin-top:12px}
+@keyframes memoryMatch{50%{transform:scale(1.045)}100%{transform:scale(1)}}
+@media(max-width:700px){#game-header{min-height:112px}.game-title-group{position:static;order:1;transform:none}.game-menu-button{order:0;align-self:flex-start}.main-nav{order:0}.memory-status-bar{order:2;width:100%}.game-selection{padding:24px 8px}.game-choice-grid{grid-template-columns:1fr}.game-choice{min-height:0}.game-choice-art{height:150px}.memory-view{min-height:calc(100dvh - 160px);overflow:visible}.memory-board{grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.memory-face{border-radius:12px}.memory-topbar{align-items:flex-start}.memory-actions{width:100%}}
+@media(max-width:420px){.memory-board{grid-template-columns:repeat(2,minmax(0,1fr))}.memory-stat{min-width:92px;padding:7px 9px}.memory-complete-card{padding:24px 18px}}
+/* Barra superior en tres zonas: izquierda, centro y derecha. */
+#game-header{display:grid!important;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);grid-template-rows:minmax(64px,auto);align-items:center;position:relative;}
+#game-header>#adventure-nav,#game-header>#game-menu-button{grid-column:1;grid-row:1;justify-self:start}
+#game-header>#game-title-group{grid-column:2;grid-row:1;justify-self:center;position:static;transform:none;z-index:1}
+#game-header>#maze-status,#game-header>#memory-status{grid-column:3;grid-row:1;justify-self:end}
+#game-header .game-menu-button{align-self:center}
+@media(max-width:700px){#game-header{grid-template-columns:1fr;grid-template-rows:auto;grid-template-areas:"title" "left" "right";justify-items:center;gap:10px}.game-title-group{grid-area:title;position:static;transform:none}.main-nav,#game-menu-button{grid-area:left;justify-self:center}.memory-status-bar,#maze-status{grid-area:right;justify-self:center;width:100%}}
+@media(min-width:701px){
+  .memory-view{flex:1 1 0;height:0;min-height:0;overflow:hidden;padding:6px 8px 10px;gap:6px}
+  .memory-feedback{flex:0 0 24px;min-height:24px;line-height:24px}
+  .memory-board{flex:0 1 auto;width:min(100%,760px,calc((100dvh - 190px)*1.333));height:auto;aspect-ratio:4/3;grid-template-rows:repeat(3,minmax(0,1fr));gap:clamp(7px,1vw,12px)}
+  .memory-card{height:auto;min-height:0;aspect-ratio:1/1}
+}
+@media(max-width:700px){
+  .memory-view{height:auto;flex:0 0 auto;min-height:calc(100dvh - 160px);overflow:visible;padding:8px 8px 22px;gap:12px}
+  .memory-board{width:100%;height:auto;aspect-ratio:auto}
+  .memory-card{aspect-ratio:1/1.08}
+}
+</style>
+<style>
+.memory-info-modal{position:fixed;inset:0;z-index:90;display:flex;align-items:center;justify-content:center;padding:16px;background:#020b08cc;backdrop-filter:blur(4px);animation:memoryModalFade .24s ease both}.memory-info-modal.hidden{display:none}.memory-info-card{width:min(100%,520px);max-height:calc(100dvh - 32px);overflow:auto;border:2px solid #6f9f68;border-radius:24px;background:#08271f;box-shadow:0 18px 45px #000b;text-align:center;animation:memoryModalIn .3s cubic-bezier(.2,.8,.25,1) both}.memory-info-modal.is-closing{animation:memoryModalFadeOut .24s ease both}.memory-info-modal.is-closing .memory-info-card{animation:memoryModalOut .24s ease both}.memory-info-image{width:100%;height:min(44vh,320px);display:block;object-fit:cover;border-bottom:1px solid #6f9f68}.memory-info-body{padding:18px 22px 12px}.memory-info-common{margin:0;color:#f4f1ea;font-size:1.55rem;font-weight:800}.memory-info-scientific{margin:8px 0 12px;color:#cbd9c9;font-size:1.1rem}.memory-info-description{margin:0;color:#f4f1ea;line-height:1.45}.memory-info-accept{width:calc(100% - 44px);margin:0 22px 12px;background:#a3d451;color:#102a22;border:0;border-radius:14px;padding:13px 18px;font-size:1.05rem;font-weight:800;cursor:pointer}.memory-info-accept:hover{background:#c4eb75}@keyframes memoryModalFade{from{opacity:0}to{opacity:1}}@keyframes memoryModalIn{from{opacity:0;transform:scale(.94) translateY(10px)}to{opacity:1;transform:none}}@keyframes memoryModalFadeOut{to{opacity:0}}@keyframes memoryModalOut{to{opacity:0;transform:scale(.96) translateY(8px)}}
+</style>
+<style>
+.menu-arrow-icon{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+</style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
+    <audio id="game-music" src="MUsic.mp3" preload="auto" loop aria-hidden="true"></audio>
+
+    <!-- ENCABEZADO SUPERIOR -->
+    <header id="game-header" class="max-w-7xl w-full mx-auto mb-3 flex flex-col md:flex-row items-center justify-between gap-2 eco-card rounded-2xl px-4 py-2.5">
+        <nav id="adventure-nav" class="main-nav flex flex-wrap items-center gap-2" aria-label="Navegación principal">
+<button type="button" onclick="window.location.href='index.html'" class="game-btn px-4 py-2 rounded-xl text-sm cursor-pointer">Inicio</button>
+<button type="button" onclick="window.location.href='index.html#doc'" class="game-btn px-4 py-2 rounded-xl text-sm cursor-pointer">Documental</button>
+        </nav>
+        <button id="game-menu-button" type="button" onclick="showGameSelection()" class="game-menu-button game-content-hidden" aria-label="Volver a Aventuras" title="Volver a Aventuras"><svg class="menu-arrow-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"></circle><path d="m12 8-4 4 4 4M16 12H8"></path></svg></button>
+        <div id="game-title-group" class="flex items-center gap-3 game-title-group">
+            <!-- Icono Murciélago SVG -->
+            <div class="w-11 h-11 rounded-xl bg-[#1b473b] border border-[#a3c954] flex items-center justify-center shrink-0 shadow-md">
+                <svg viewBox="0 0 64 64" class="w-9 h-9">
+                    <path d="M32 24 C26 14, 10 12, 4 22 C10 24, 14 29, 14 35 C19 32, 24 33, 27 38 L32 42 L37 38 C40 33, 45 32, 50 35 C50 29, 54 24, 60 22 C54 12, 38 14, 32 24 Z" fill="#5c4738" stroke="#2b1e16" stroke-width="2"/>
+                    <ellipse cx="32" cy="31" rx="7" ry="9" fill="#473529"/>
+                    <polygon points="27,24 25,16 30,21" fill="#473529"/>
+                    <polygon points="37,24 39,16 34,21" fill="#473529"/>
+                    <circle cx="29.5" cy="27" r="1.5" fill="#ffd166"/>
+                    <circle cx="34.5" cy="27" r="1.5" fill="#ffd166"/>
+                    <path d="M30 31 Q32 33 34 31" stroke="#f4f1ea" stroke-width="1.2" fill="none"/>
+                </svg>
+            </div>
+            <div>
+                <h1 class="text-lg sm:text-2xl font-bold text-[#f4f1ea] leading-tight tracking-wide">
+                    <span id="game-screen-title">Aventuras</span>
+                </h1>
+            </div>
+        </div>
+
+        <!-- Marcadores del laberinto -->
+        <div id="maze-status" class="flex flex-wrap items-center justify-center gap-2 sm:gap-4 w-full md:w-auto game-content-hidden">
+            <div class="bg-[#081a15] border border-[#2a5c4e] rounded-xl px-3 py-1.5 text-center min-w-[85px]">
+                <div class="text-[10px] uppercase tracking-wider text-emerald-300 font-bold">Especies</div>
+                <div id="hud-collected" class="font-display text-lg font-bold text-[#a3c954]">0 / 10</div>
+            </div>
+            <div class="bg-[#081a15] border border-[#2a5c4e] rounded-xl px-3 py-1.5 text-center min-w-[85px]">
+                <div class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">Puntos</div>
+                <div id="hud-score" class="font-display text-lg font-bold text-amber-400">0</div>
+            </div>
+            <div class="bg-[#081a15] border border-[#2a5c4e] rounded-xl px-3 py-1.5 flex flex-col items-center min-w-[110px]">
+                <div class="text-[10px] uppercase tracking-wider text-rose-300 font-bold">Energía Vital</div>
+                <div id="hud-hearts" class="flex gap-1 mt-0.5 text-base" aria-label="Energía">
+                    ❤️❤️❤️❤️❤️
+                </div>
+            </div>
+            <button id="btn-sound" title="Activar/Silenciar sonido" class="p-2 rounded-xl bg-[#163e34] border border-[#3a7867] hover:bg-[#205749] text-lg transition">
+                🔊
+            </button>
+            
+        </div>
+        <div id="memory-status" class="memory-status-bar game-content-hidden" aria-label="Marcadores del memorama">
+            <div class="memory-stat">Parejas<b id="memory-pairs">0 / 6</b></div>
+            <div class="memory-stat">Intentos<b id="memory-attempts">0</b></div>
+            <div class="memory-stat">Puntuación<b id="memory-score">0</b></div>
+        </div>
+    </header>
+
+    <section id="game-selection" class="game-selection" aria-label="Aventuras">
+        <div class="game-selection-heading">
+            <p>Explora la selva a tu ritmo: recorre el laberinto o descubre las parejas del memorama.</p>
+        </div>
+        <div class="game-choice-grid">
+            <article class="game-choice">
+                <div class="game-choice-art"><img src="Murciélago%20feliz%20comiendo%20mango%20bajo%20la%20luna.webp" alt="Murciélago en la selva nocturna"></div>
+                <div class="game-choice-body"><h3>Laberinto</h3><p>Explora la selva, recolecta especies y evita los obstáculos.</p><button type="button" class="game-btn px-5 py-2 rounded-xl cursor-pointer" onclick="openMazeGame()">Jugar</button></div>
+            </article>
+            <article class="game-choice">
+                <div class="game-choice-art"><img src="IMG/Guayaba.webp" alt="Frutas de la selva para el memorama"></div>
+                <div class="game-choice-body"><h3>Memorama</h3><p>Encuentra las parejas de frutas y flores de la selva.</p><button type="button" class="game-btn px-5 py-2 rounded-xl cursor-pointer" onclick="openMemoryGame()">Jugar</button></div>
+            </article>
+        </div>
+    </section>
+
+    <section id="memory-view" class="memory-view game-content-hidden" aria-label="Memorama">
+        <div id="memory-feedback" class="memory-feedback" aria-live="polite">Encuentra todas las parejas.</div>
+        <div id="memory-board" class="memory-board" aria-label="Tablero del memorama"></div>
+    </section>
+
+    <div id="memory-info-modal" class="memory-info-modal hidden" role="dialog" aria-modal="true" aria-labelledby="memory-info-common">
+        <article class="memory-info-card">
+            <img id="memory-info-image" class="memory-info-image" src="" alt="">
+            <div class="memory-info-body">
+                <h2 id="memory-info-common" class="memory-info-common"></h2>
+                <p id="memory-info-scientific" class="memory-info-scientific"><em></em></p>
+                <p id="memory-info-description" class="memory-info-description"></p>
+            </div>
+            <button id="memory-info-accept" type="button" class="memory-info-accept" onclick="closeMemoryInfo()">Aceptar</button>
+        </article>
+    </div>
+
+    <div id="memory-complete" class="memory-complete hidden" role="dialog" aria-modal="true" aria-labelledby="memory-complete-title"><div class="memory-complete-card"><h2 id="memory-complete-title">¡Memorama completado!</h2><p>¡Excelente trabajo! Has descubierto las frutas y flores de nuestra selva</p><p><strong>Puntuación final: <span id="memory-final-score">0</span></strong></p><button type="button" class="game-btn px-5 py-2 rounded-xl cursor-pointer" onclick="resetMemoryGame()">Volver a jugar</button></div></div>
+
+    <!-- ÁREA PRINCIPAL: LABERINTO + PANEL EDUCATIVO -->
+    <main id="game-main" class="game-content-hidden max-w-7xl w-full mx-auto grid grid-cols-1 lg:grid-cols-12 gap-4 items-start flex-grow">
+        
+        <!-- COLUMNA IZQUIERDA (7 cols en desktop): LABERINTO Y RETROALIMENTACIÓN -->
+        <section class="lg:col-span-7 flex flex-col items-center gap-3 w-full">
+            
+            <!-- Contenedor del Laberinto -->
+            <div id="maze-wrapper">
+                <canvas id="gameCanvas"></canvas>
+
+                <!-- PANTALLA DE INICIO (Overlay) -->
+                <div id="start-overlay" class="absolute inset-0 bg-[#061410]/92 backdrop-blur-sm flex flex-col items-center justify-center p-4 sm:p-6 text-center z-20">
+
+                    <div class="grid grid-cols-2 gap-3 max-w-md w-full mb-5 text-left text-xs">
+                        <div class="bg-[#0e2922] border border-[#2f6958] p-2.5 rounded-xl">
+                            <div class="font-bold text-[#a3c954] mb-1">✅ Tu Misión (+100 pts)</div>
+                            <p class="text-gray-300">Recolecta los 6 frutos dispersados y las 4 flores polinizadas de la guía.</p>
+                        </div>
+                        <div class="bg-[#291214] border border-rose-800/60 p-2.5 rounded-xl">
+                            <div class="font-bold text-rose-400 mb-1">⚠️ Distracciones (-1 ❤️)</div>
+                            <p class="text-gray-300">Evita hamburguesas, pizzas, refrescos, farolas, botas, celulares y monedas.</p>
+                        </div>
+                    </div>
+
+                    <button id="btn-start" class="game-btn px-8 py-3 rounded-2xl text-lg sm:text-xl cursor-pointer">
+                        🦇 ¡Iniciar Vuelo Nocturno!
+                    </button>
+                    <p class="text-[11px] text-emerald-300/80 mt-3">
+                        Usa las <strong>Flechas / WASD</strong> en teclado o los <strong>botones táctiles</strong> en pantalla.
+                    </p>
+                </div>
+
+                <!-- PANTALLA DE FIN DE JUEGO / VICTORIA (Overlay) -->
+                <div id="end-overlay" class="hidden absolute inset-0 bg-[#061410]/95 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6 text-center z-30"><h2 id="end-title" class="text-3xl sm:text-5xl font-bold text-[#f4f1ea] mb-6">¡Ganaste!</h2><button id="btn-restart" class="game-btn px-8 py-3 rounded-2xl text-lg sm:text-xl cursor-pointer">Aceptar</button></div>
+            </div>
+                            </section>
+
+        <!-- COLUMNA DERECHA (5 cols en desktop): GUÍA DE LAS 10 ESPECIES DE LA INFOGRAFÍA -->
+        <aside class="lg:col-span-5 eco-card rounded-2xl p-3 sm:p-4 w-full flex flex-col max-h-[680px]">
+            <div class="flex items-center justify-between border-b border-[#28594b] pb-2 mb-2.5">
+                <div>
+                    <h2 class="font-display font-bold text-base sm:text-lg text-[#f4f1ea]">
+                        Dieta y Polinización en Tabasco
+                    </h2>
+                    <p class="text-xs text-[#a3c954]">Recolecta las 10 especies de la infografía</p>
+                </div>
+                <span id="checklist-badge" class="bg-[#184539] border border-[#a3c954] text-[#a3c954] font-display font-bold text-xs px-2.5 py-1 rounded-full">
+                    0/10
+                </span>
+            </div>
+
+            <!-- Lista interactiva con scroll -->
+            <div id="species-list" class="species-scroll overflow-y-auto pr-1 space-y-3 flex-grow">
+                <!-- Se llenará dinámicamente desde JavaScript con los 2 grupos exactos -->
+            </div>
+
+            <!-- Leyenda rápida de distracciones -->
+            <div class="mt-3 pt-2.5 border-t border-[#28594b]">
+                <div class="text-[11px] font-bold uppercase tracking-wider text-rose-400 mb-1.5">
+                    ⚠️ Distracciones en el laberinto (¡Evítalas!)
+                </div>
+                <div id="distractions-legend" class="flex flex-wrap gap-1.5 text-[11px]">
+                    <!-- Generado por JS -->
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <script>
+        /**
+         * ============================================================================
+         * 1. BASE DE DATOS ECOLÓGICA (EXACTA DE LA INFOGRAFÍA)
+         * ============================================================================
+         */
+        const SPECIES_DATA = [
+            // SECCIÓN 2: ÁRBOLES Y ARBUSTOS DISPERSADOS
+            {
+                id: 'jobo',
+                category: 'dispersed',
+                commonName: 'Jobo',
+                scientificName: 'Spondias mombin',
+                role: 'Fuente de energía crítica; dispersión en zonas rurales.',
+                color: '#e69d24'
+            },
+            {
+                id: 'guarumo',
+                category: 'dispersed',
+                commonName: 'Guarumo',
+                scientificName: 'Cecropia peltata',
+                role: 'Especie pionera; fundamental para regenerar selvas.',
+                color: '#88b04b'
+            },
+            {
+                id: 'guayaba',
+                category: 'dispersed',
+                commonName: 'Guayaba',
+                scientificName: 'Psidium guajava',
+                role: 'Alimento preferido por frugívoros generalistas.',
+                color: '#f2849e'
+            },
+            {
+                id: 'matapalo',
+                category: 'dispersed',
+                commonName: 'Matapalo',
+                scientificName: 'Ficus spp.',
+                role: '“Árbol nodriza”; alimento disponible todo el año.',
+                color: '#7b3f61'
+            },
+            {
+                id: 'pimienta',
+                category: 'dispersed',
+                commonName: 'Pimienta gorda',
+                scientificName: 'Pimenta dioica',
+                role: 'Dispersada en cacaotales tradicionales.',
+                color: '#6b9e3e'
+            },
+            {
+                id: 'chaca',
+                category: 'dispersed',
+                commonName: 'Chaca / Palo mulato',
+                scientificName: 'Bursera simaruba',
+                role: 'Importante por sus frutos rojos.',
+                color: '#d9483b'
+            },
+            // SECCIÓN 3: FLORES Y EPÍFITAS POLINIZADAS
+            {
+                id: 'pitahaya',
+                category: 'pollinated',
+                commonName: 'Pitahaya real',
+                scientificName: 'Selenicereus undatus',
+                role: 'Flores nocturnas de gran tamaño; néctar especializado.',
+                color: '#fff8dc'
+            },
+            {
+                id: 'orquidea',
+                category: 'pollinated',
+                commonName: 'Orquídea nocturna',
+                scientificName: 'Brassavola nodosa',
+                role: 'Perfume intenso nocturno para atraer murciélagos.',
+                color: '#f5f5f0'
+            },
+            {
+                id: 'cactus',
+                category: 'pollinated',
+                commonName: 'Cactus trepador',
+                scientificName: 'Acanthocereus tetragonus',
+                role: 'Floración masiva nocturna; vital en zonas de dunas/costa.',
+                color: '#4f9e64'
+            },
+            {
+                id: 'flordeluna',
+                category: 'pollinated',
+                commonName: 'Flor de luna',
+                scientificName: 'Ipomoea alba',
+                role: 'Enredadera de jardín; abren al atardecer.',
+                color: '#ffffff'
+            }
+        ];
+
+        const DISTRACTIONS_DATA = [
+            {
+                id: 'burger',
+                name: 'Hamburguesa',
+                message: '¡Comida chatarra! Los alimentos ultraprocesados humanos enferman a la fauna silvestre.'
+            },
+            {
+                id: 'pizza',
+                name: 'Pizza',
+                message: '¡Distracción humana! La pizza no aporta nutrientes naturales ni dispersa semillas.'
+            },
+            {
+                id: 'soda',
+                name: 'Refresco',
+                message: '¡Azúcar y químicos! Los murciélagos necesitan néctar floral natural, no refrescos.'
+            },
+            {
+                id: 'lamp',
+                name: 'Farola encendida',
+                message: '¡Contaminación lumínica! La luz artificial desorienta el vuelo nocturno del murciélago.'
+            },
+            {
+                id: 'coin',
+                name: 'Moneda de oro',
+                message: '¡Sin valor ecológico! El oro no alimenta ni regenera la selva de Tabasco.'
+            },
+            {
+                id: 'phone',
+                name: 'Teléfono celular',
+                message: '¡Residuo electrónico! La tecnología humana no tiene lugar en el hábitat natural.'
+            },
+            {
+                id: 'boot',
+                name: 'Bota vieja',
+                message: '¡Basura en la selva! Los desechos contaminan los cacaotales y bosques.'
+            }
+        ];
+
+        /**
+         * ============================================================================
+         * 2. ICONOS SVG VECTORIALES PERSONALIZADOS (PARA UI Y RENDERIZADO EN CANVAS)
+         * ============================================================================
+         */
+        function getItemSVG(id) {
+            const svgs = {
+                // 1. Jobo (Spondias mombin) - Dos frutos ovalados amarillos/naranjas
+                jobo: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M22 14 Q32 8 42 16" stroke="#4d7c2c" stroke-width="3" fill="none" stroke-linecap="round"/>
+                    <ellipse cx="24" cy="34" rx="13" ry="16" transform="rotate(-15 24 34)" fill="#e09422" stroke="#7a4908" stroke-width="2"/>
+                    <ellipse cx="20" cy="29" rx="4" ry="6" transform="rotate(-15 20 29)" fill="#f7c552" opacity="0.7"/>
+                    <ellipse cx="41" cy="39" rx="12" ry="15" transform="rotate(20 41 39)" fill="#c97a16" stroke="#7a4908" stroke-width="2"/>
+                    <ellipse cx="38" cy="34" rx="3.5" ry="5" transform="rotate(20 38 34)" fill="#f5b841" opacity="0.6"/>
+                </svg>`,
+
+                // 2. Guarumo (Cecropia peltata) - Hoja palmada + infrutescencias alargadas
+                guarumo: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M24 24 L10 14 L18 24 L8 30 L20 31 L16 42 L26 33 L34 40 L31 28 L42 22 L29 21 L28 10 Z" fill="#4f8f3d" stroke="#264d1b" stroke-width="1.5"/>
+                    <path d="M26 26 L36 34" stroke="#6b4423" stroke-width="2.5"/>
+                    <rect x="33" y="32" width="6" height="22" rx="3" transform="rotate(-12 33 32)" fill="#b89f46" stroke="#635318" stroke-width="1.5"/>
+                    <rect x="42" y="34" width="6" height="20" rx="3" transform="rotate(-5 42 34)" fill="#cbb354" stroke="#635318" stroke-width="1.5"/>
+                </svg>`,
+
+                // 3. Guayaba (Psidium guajava) - Fruta verde entera y mitad con interior rosado
+                guayaba: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="40" cy="30" r="15" fill="#7cb342" stroke="#33691e" stroke-width="2"/>
+                    <path d="M40 15 L42 10 M40 15 L37 11" stroke="#33691e" stroke-width="2"/>
+                    <circle cx="25" cy="38" r="15" fill="#9ccc65" stroke="#33691e" stroke-width="2"/>
+                    <circle cx="25" cy="38" r="11.5" fill="#f48fb1"/>
+                    <circle cx="22" cy="35" r="1" fill="#fce4ec"/>
+                    <circle cx="27" cy="36" r="1" fill="#fce4ec"/>
+                    <circle cx="24" cy="41" r="1" fill="#fce4ec"/>
+                    <circle cx="28" cy="40" r="1" fill="#fce4ec"/>
+                </svg>`,
+
+                // 4. Matapalo (Ficus spp.) - Higo morado y mitad abierta rojiza/rosada
+                matapalo: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M41 14 C46 22, 54 28, 54 38 A13 13 0 1 1 28 38 C28 28, 36 22, 41 14 Z" fill="#5e3558" stroke="#2e152b" stroke-width="2"/>
+                    <path d="M23 18 C28 25, 35 31, 35 40 A12 12 0 1 1 11 40 C11 31, 18 25, 23 18 Z" fill="#7b4372" stroke="#2e152b" stroke-width="2"/>
+                    <path d="M23 22 C26 27, 31 32, 31 40 A8 8 0 1 1 15 40 C15 32, 20 27, 23 22 Z" fill="#e57373"/>
+                    <circle cx="23" cy="39" r="4" fill="#ffcdd2"/>
+                </svg>`,
+
+                // 5. Pimienta gorda (Pimenta dioica) - Racimo de bayas verdes en rama
+                pimienta: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <line x1="14" y1="50" x2="50" y2="14" stroke="#5d4037" stroke-width="3.5" stroke-linecap="round"/>
+                    <circle cx="20" cy="38" r="4.5" fill="#7cb342" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="28" cy="44" r="4.5" fill="#689f38" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="27" cy="31" r="4.5" fill="#8bc34a" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="35" cy="37" r="4.5" fill="#7cb342" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="34" cy="24" r="4.5" fill="#689f38" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="42" cy="30" r="4.5" fill="#8bc34a" stroke="#2e5214" stroke-width="1.5"/>
+                    <circle cx="42" cy="18" r="4" fill="#7cb342" stroke="#2e5214" stroke-width="1.5"/>
+                </svg>`,
+
+                // 6. Chaca / Palo mulato (Bursera simaruba) - Rama rojiza con frutos rojos colgando
+                chaca: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 52 L32 32 L52 14 M32 32 L18 16 M36 28 L50 32" stroke="#8d3b24" stroke-width="5" stroke-linecap="round" fill="none"/>
+                    <line x1="36" y1="30" x2="34" y2="44" stroke="#5d4037" stroke-width="1.5"/>
+                    <line x1="42" y1="30" x2="44" y2="46" stroke="#5d4037" stroke-width="1.5"/>
+                    <line x1="48" y1="32" x2="52" y2="42" stroke="#5d4037" stroke-width="1.5"/>
+                    <circle cx="34" cy="46" r="4.5" fill="#e53935" stroke="#7f0000" stroke-width="1.5"/>
+                    <circle cx="44" cy="48" r="4.5" fill="#d32f2f" stroke="#7f0000" stroke-width="1.5"/>
+                    <circle cx="52" cy="44" r="4" fill="#ef5350" stroke="#7f0000" stroke-width="1.5"/>
+                </svg>`,
+
+                // 7. Pitahaya real (Selenicereus undatus) - Flor nocturna blanca grande con sépalos amarillos
+                pitahaya: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(32,32)">
+                        <polygon points="0,-28 5,-10 22,-18 10,-4 28,0 10,4 22,18 5,10 0,28 -5,10 -22,18 -10,4 -28,0 -10,-4 -22,-18 -5,-10" fill="#d4b84a" stroke="#7a681c" stroke-width="1"/>
+                        <polygon points="0,-22 6,-7 18,-14 8,-2 22,0 8,2 18,14 6,7 0,22 -6,7 -18,14 -8,2 -22,0 -8,-2 -18,-14 -6,-7" fill="#ffffff"/>
+                        <circle cx="0" cy="0" r="7" fill="#fff59d"/>
+                        <circle cx="0" cy="0" r="3" fill="#fbc02d"/>
+                    </g>
+                </svg>`,
+
+                // 8. Orquídea nocturna (Brassavola nodosa) - Flor blanca en forma de estrella
+                orquidea: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(32,30)">
+                        <path d="M0,0 L0,-24 L3,-6 Z" fill="#f1f8e9" stroke="#9ccc65" stroke-width="1"/>
+                        <path d="M0,0 L-23,-8 L-6,-1 Z" fill="#f1f8e9" stroke="#9ccc65" stroke-width="1"/>
+                        <path d="M0,0 L23,-8 L6,-1 Z" fill="#f1f8e9" stroke="#9ccc65" stroke-width="1"/>
+                        <path d="M0,0 L-16,18 L-4,4 Z" fill="#f1f8e9" stroke="#9ccc65" stroke-width="1"/>
+                        <path d="M0,0 L16,18 L4,4 Z" fill="#f1f8e9" stroke="#9ccc65" stroke-width="1"/>
+                        <path d="M0,-2 C-9,4 -11,16 0,22 C11,16 9,4 0,-2 Z" fill="#ffffff" stroke="#cfd8dc" stroke-width="1.5"/>
+                        <circle cx="0" cy="3" r="2.5" fill="#c5e1a5"/>
+                    </g>
+                </svg>`,
+
+                // 9. Cactus trepador (Acanthocereus tetragonus) - Tallos columnares verdes con flor blanca
+                cactus: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="20" y="16" width="11" height="40" rx="5.5" fill="#43a047" stroke="#1b5e20" stroke-width="2"/>
+                    <rect x="11" y="28" width="9" height="28" rx="4.5" fill="#2e7d32" stroke="#1b5e20" stroke-width="2"/>
+                    <rect x="31" y="24" width="10" height="32" rx="5" fill="#388e3c" stroke="#1b5e20" stroke-width="2"/>
+                    <g transform="translate(43,22)">
+                        <circle cx="0" cy="0" r="11" fill="#ffffff" stroke="#b0bec5" stroke-width="1.5"/>
+                        <circle cx="0" cy="0" r="4.5" fill="#ffee58"/>
+                    </g>
+                </svg>`,
+
+                // 10. Flor de luna (Ipomoea alba) - Flor blanca grande tipo trompeta/pentágono
+                flordeluna: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <g transform="translate(32,32)">
+                        <path d="M0,-24 C10,-22 22,-12 24,-4 C24,6 16,18 10,22 C2,24 -2,24 -10,22 C-16,18 -24,6 -24,-4 C-22,-12 -10,-22 0,-24 Z" fill="#ffffff" stroke="#cfd8dc" stroke-width="2"/>
+                        <path d="M0,0 L0,-22 M0,0 L21,-6 M0,0 L13,18 M0,0 L-13,18 M0,0 L-21,-6" stroke="#e0f2f1" stroke-width="2"/>
+                        <circle cx="0" cy="0" r="5" fill="#dcedc8"/>
+                    </g>
+                </svg>`,
+
+                // DISTRACCIONES (NO SON ALIMENTO DEL MURCIÉLAGO)
+                burger: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 28 C12 14, 52 14, 52 28 Z" fill="#e69d45" stroke="#6d3b0e" stroke-width="2"/>
+                    <path d="M10 32 Q18 28 26 32 T42 32 T54 32" stroke="#66bb6a" stroke-width="4" fill="none" stroke-linecap="round"/>
+                    <rect x="11" y="34" width="42" height="7" rx="3.5" fill="#5d2906"/>
+                    <polygon points="18,34 26,42 34,34" fill="#ffca28"/>
+                    <path d="M12 42 L52 42 C52 49, 12 49, 12 42 Z" fill="#e69d45" stroke="#6d3b0e" stroke-width="2"/>
+                </svg>`,
+
+                pizza: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <polygon points="32,10 52,50 12,50" fill="#ffca28" stroke="#b26a00" stroke-width="2"/>
+                    <path d="M11 49 Q32 54 53 49" stroke="#d9822b" stroke-width="6" fill="none" stroke-linecap="round"/>
+                    <circle cx="32" cy="27" r="3.5" fill="#d32f2f"/>
+                    <circle cx="25" cy="40" r="4" fill="#d32f2f"/>
+                    <circle cx="39" cy="41" r="3.5" fill="#d32f2f"/>
+                </svg>`,
+
+                soda: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M36 20 L44 8" stroke="#ff5252" stroke-width="3.5" stroke-linecap="round"/>
+                    <polygon points="20,22 44,22 40,54 24,54" fill="#e53935" stroke="#7f0000" stroke-width="2"/>
+                    <rect x="18" y="19" width="28" height="4" rx="2" fill="#eceff1" stroke="#455a64" stroke-width="1.5"/>
+                    <rect x="22" y="32" width="20" height="10" fill="#ffffff" opacity="0.85"/>
+                </svg>`,
+
+                lamp: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="24" r="18" fill="#fff59d" opacity="0.45"/>
+                    <rect x="29" y="34" width="6" height="22" fill="#546e7a" stroke="#263238" stroke-width="1.5"/>
+                    <path d="M22 34 L42 34 L38 16 L26 16 Z" fill="#ffee58" stroke="#f57f17" stroke-width="2"/>
+                    <path d="M20 16 L44 16 L32 10 Z" fill="#37474f"/>
+                </svg>`,
+
+                coin: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="32" cy="32" r="20" fill="#ffd54f" stroke="#b27800" stroke-width="3"/>
+                    <circle cx="32" cy="32" r="14" fill="none" stroke="#f59e0b" stroke-width="2"/>
+                    <text x="32" y="39" font-family="sans-serif" font-weight="bold" font-size="20" text-anchor="middle" fill="#b27800">$</text>
+                </svg>`,
+
+                phone: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="19" y="10" width="26" height="44" rx="4" fill="#263238" stroke="#90a4ae" stroke-width="2"/>
+                    <rect x="22" y="15" width="20" height="32" fill="#29b6f6"/>
+                    <circle cx="32" cy="50" r="2" fill="#cfd8dc"/>
+                </svg>`,
+
+                boot: `<svg viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 14 L34 14 L34 36 L48 40 C51 41, 52 48, 48 50 L18 50 L18 16 Z" fill="#6d4c41" stroke="#3e2723" stroke-width="2"/>
+                    <line x1="18" y1="46" x2="50" y2="46" stroke="#3e2723" stroke-width="3"/>
+                </svg>`
+            };
+            return svgs[id] || '';
+        }
+
+        // Precargar los SVGs como objetos Image para dibujarlos nítidamente en el Canvas
+        const itemImages = {};
+        function preloadAllSVGs() {
+            const allIds = [
+                ...SPECIES_DATA.map(s => s.id),
+                ...DISTRACTIONS_DATA.map(d => d.id)
+            ];
+            allIds.forEach(id => {
+                const svgString = getItemSVG(id);
+                const img = new Image();
+                const encoded = encodeURIComponent(svgString);
+                img.src = `data:image/svg+xml;charset=utf-8,${encoded}`;
+                itemImages[id] = img;
+            });
+        }
+
+        /**
+         * ============================================================================
+         * 3. EFECTOS DE SONIDO SINTETIZADOS (WEB AUDIO API - SIN ARCHIVOS EXTERNOS)
+         * ============================================================================
+         */
+        let audioCtx = null;
+        let soundEnabled = true;
+        const gameMusic = document.getElementById('game-music');
+        function startMusic() {
+            if (!soundEnabled || !gameMusic) return;
+            gameMusic.volume = 0.28;
+            gameMusic.play().catch(() => {});
+        }
+        function stopMusic() {
+            if (!gameMusic) return;
+            gameMusic.pause();
+            gameMusic.currentTime = 0;
+        }
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playTone(type) {
+            if (!soundEnabled) return;
+            try {
+                initAudio();
+                const now = audioCtx.currentTime;
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                if (type === 'collect') {
+                    // Melodía ascendente alegre
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(523.25, now); // Do5
+                    osc.frequency.setValueAtTime(659.25, now + 0.08); // Mi5
+                    osc.frequency.setValueAtTime(783.99, now + 0.16); // Sol5
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+                    osc.start(now);
+                    osc.stop(now + 0.35);
+                } else if (type === 'distraction') {
+                    // Sonido grave de advertencia
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(190, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.28);
+                    gain.gain.setValueAtTime(0.18, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'win') {
+                    // Fanfarria ecológica
+                    osc.type = 'sine';
+                    const notes = [523.25, 659.25, 783.99, 1046.50];
+                    notes.forEach((freq, idx) => {
+                        osc.frequency.setValueAtTime(freq, now + idx * 0.12);
+                    });
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+                    osc.start(now);
+                    osc.stop(now + 0.65);
+                }
+            } catch (e) {
+                // Ignorar errores de audio si el navegador bloquea autoplay
+            }
+        }
+
+        /**
+         * ============================================================================
+         * 4. GENERACIÓN PROCEDURAL DE LABERINTO CON CAMINOS ALTERNATIVOS Y VERIFICACIÓN BFS
+         * ============================================================================
+         */
+        const COLS = 15;
+        const ROWS = 13;
+        const START_POS = { x: 7, y: 5 };
+
+        // Matriz dinámica del laberinto (1 = vegetación densa / camino tapado, 0 = sendero abierto)
+        let mazeGrid = [];
+
+        /**
+         * Genera un laberinto con pasillos cerrados (callejones sin salida) y caminos
+         * abiertos alternativos (ciclos/trenzado), verificando mediante BFS que todos
+         * los alimentos sean alcanzables sin tener que pisar distracciones.
+         */
+        function generateStrategicMaze() {
+            // 1. Iniciar matriz llena de vegetación (1)
+            const grid = Array.from({ length: ROWS }, () => Array(COLS).fill(1));
+
+            // 2. Excavación por Backtracking Recursivo en celdas impares
+            function carve(x, y) {
+                grid[y][x] = 0;
+                const dirs = [
+                    { dx: 0, dy: -2 },
+                    { dx: 2, dy: 0 },
+                    { dx: 0, dy: 2 },
+                    { dx: -2, dy: 0 }
+                ].sort(() => Math.random() - 0.5);
+
+                for (const { dx, dy } of dirs) {
+                    const nx = x + dx;
+                    const ny = y + dy;
+                    if (nx > 0 && nx < COLS - 1 && ny > 0 && ny < ROWS - 1 && grid[ny][nx] === 1) {
+                        grid[y + dy / 2][x + dx / 2] = 0;
+                        carve(nx, ny);
+                    }
+                }
+            }
+
+            carve(START_POS.x, START_POS.y);
+
+            // 3. Trenzado parcial (Braiding): abrir ~55% de los callejones sin salida
+            // para crear rutas alternativas y circuitos, dejando ~45% tapados como callejones.
+            const cardinalDirs = [
+                { dx: 0, dy: -1 },
+                { dx: 1, dy: 0 },
+                { dx: 0, dy: 1 },
+                { dx: -1, dy: 0 }
+            ];
+
+            for (let y = 1; y < ROWS - 1; y += 2) {
+                for (let x = 1; x < COLS - 1; x += 2) {
+                    if (grid[y][x] !== 0) continue;
+
+                    const openNeighbors = cardinalDirs.filter(d => grid[y + d.dy][x + d.dx] === 0);
+                    if (openNeighbors.length === 1 && Math.random() < 0.58) {
+                        // Buscar muros internos que conecten con otro pasillo abierto al otro lado
+                        const candidates = cardinalDirs.filter(d => {
+                            const wx = x + d.dx;
+                            const wy = y + d.dy;
+                            const tx = x + d.dx * 2;
+                            const ty = y + d.dy * 2;
+                            return (
+                                tx > 0 && tx < COLS - 1 &&
+                                ty > 0 && ty < ROWS - 1 &&
+                                grid[wy][wx] === 1 &&
+                                grid[ty][tx] === 0
+                            );
+                        });
+
+                        if (candidates.length > 0) {
+                            const chosen = candidates[Math.floor(Math.random() * candidates.length)];
+                            grid[y + chosen.dy][x + chosen.dx] = 0;
+                        }
+                    }
+                }
+            }
+
+            // 4. Abrir un par de claros extra cerca del centro para fluidez inicial
+            const extraOpenings = [
+                { x: 6, y: 5 },
+                { x: 8, y: 5 }
+            ];
+            extraOpenings.forEach(p => {
+                if (grid[p.y] && grid[p.y][p.x] !== undefined) grid[p.y][p.x] = 0;
+            });
+
+            return grid;
+        }
+
+        /**
+         * Recorrido en Anchura (BFS) desde START_POS evitando celdas bloqueadas.
+         * Devuelve el conjunto de claves "x,y" alcanzables.
+         */
+        function getReachableCells(grid, blockedSet = new Set()) {
+            const visited = new Set();
+            const queue = [{ x: START_POS.x, y: START_POS.y }];
+            visited.add(`${START_POS.x},${START_POS.y}`);
+
+            const dirs = [
+                { dx: 0, dy: -1 },
+                { dx: 1, dy: 0 },
+                { dx: 0, dy: 1 },
+                { dx: -1, dy: 0 }
+            ];
+
+            while (queue.length > 0) {
+                const curr = queue.shift();
+                for (const d of dirs) {
+                    const nx = curr.x + d.dx;
+                    const ny = curr.y + d.dy;
+                    const key = `${nx},${ny}`;
+                    if (
+                        nx >= 0 && nx < COLS &&
+                        ny >= 0 && ny < ROWS &&
+                        grid[ny][nx] === 0 &&
+                        !blockedSet.has(key) &&
+                        !visited.has(key)
+                    ) {
+                        visited.add(key);
+                        queue.push({ x: nx, y: ny });
+                    }
+                }
+            }
+            return visited;
+        }
+
+        /**
+         * Ubica los 10 alimentos y las 7 distracciones garantizando matemáticamente:
+         * - Ninguna distracción bloquea un pasillo único (puente/articulación del grafo).
+         * - Todos los 10 alimentos son alcanzables por al menos un camino 100% libre.
+         */
+        function placeEntitiesSafely(grid) {
+            const allReachable = Array.from(getReachableCells(grid))
+                .map(k => {
+                    const [x, y] = k.split(',').map(Number);
+                    return { x, y, key: k };
+                })
+                .filter(c => !(c.x === START_POS.x && c.y === START_POS.y));
+
+            const totalOpenCount = allReachable.length + 1; // +1 por START_POS
+
+            // Seleccionar primero las 7 distracciones verificando con BFS que NINGUNA
+            // desconecte el laberinto (es decir, no sea un puente obligatorio).
+            const shuffledForDist = [...allReachable].sort(() => Math.random() - 0.5);
+            const selectedDistractions = [];
+            const blockedByDistractions = new Set();
+
+            for (const cell of shuffledForDist) {
+                if (selectedDistractions.length >= DISTRACTIONS_DATA.length) break;
+
+                // Evitar colocar distracciones pegadas al inicio del jugador
+                const distToStart = Math.abs(cell.x - START_POS.x) + Math.abs(cell.y - START_POS.y);
+                if (distToStart <= 2) continue;
+
+                // Probar temporalmente bloquear esta celda
+                blockedByDistractions.add(cell.key);
+                const reachableWithoutCell = getReachableCells(grid, blockedByDistractions);
+
+                // Si todas las demás celdas siguen siendo alcanzables, hay otro camino para rodearla
+                if (reachableWithoutCell.size === totalOpenCount - blockedByDistractions.size) {
+                    selectedDistractions.push(cell);
+                } else {
+                    // Es un pasillo único obligatorio: no poner distracción aquí
+                    blockedByDistractions.delete(cell.key);
+                }
+            }
+
+            // Elegir las 10 celdas para alimentos dentro del conjunto seguro alcanzado sin distracciones
+            const safeCellsForFood = Array.from(getReachableCells(grid, blockedByDistractions))
+                .map(k => {
+                    const [x, y] = k.split(',').map(Number);
+                    return { x, y, key: k };
+                })
+                .filter(c => !(c.x === START_POS.x && c.y === START_POS.y));
+
+            // Priorizar buena distribución espacial en todo el laberinto
+            const shuffledFoodCells = [...safeCellsForFood].sort(() => Math.random() - 0.5);
+            const selectedFoods = shuffledFoodCells.slice(0, SPECIES_DATA.length);
+
+            return { selectedFoods, selectedDistractions };
+        }
+
+        let gameState = {
+            status: 'start', // 'start', 'playing', 'won', 'gameover'
+            score: 0,
+            hearts: 5,
+            collectedIds: new Set(),
+            player: {
+                gridX: START_POS.x,
+                gridY: START_POS.y,
+                renderX: START_POS.x,
+                renderY: START_POS.y,
+                facing: 1, // 1 derecha, -1 izquierda
+                wingPhase: 0
+            },
+            foods: [],
+            distractions: [],
+            particles: [],
+            fireflies: []
+        };
+
+        /**
+         * ============================================================================
+         * 5. INICIALIZACIÓN DE INTERFAZ Y TABLA DE ESPECIES
+         * ============================================================================
+         */
+        function buildSpeciesSidebar() {
+            const listContainer = document.getElementById('species-list');
+            listContainer.innerHTML = '';
+
+            const sections = [
+                {
+                    key: 'dispersed',
+                    title: '🌳 Árboles y Arbustos Dispersados',
+                    subtitle: 'Rol ecológico clave en Tabasco'
+                },
+                {
+                    key: 'pollinated',
+                    title: '🌸 Flores y Epífitas Polinizadas',
+                    subtitle: 'La danza de la polinización nocturna'
+                }
+            ];
+
+            sections.forEach(sec => {
+                const sectionWrapper = document.createElement('div');
+                sectionWrapper.className = 'space-y-1.5';
+
+                const header = document.createElement('div');
+                header.className = 'bg-[#174236] border border-[#2f6e5c] rounded-lg px-2.5 py-1.5';
+                header.innerHTML = `
+                    <div class="font-display font-bold text-xs sm:text-sm text-[#a3c954]">${sec.title}</div>
+                    <div class="text-[11px] text-emerald-200/80">${sec.subtitle}</div>
+                `;
+                sectionWrapper.appendChild(header);
+
+                const items = SPECIES_DATA.filter(s => s.category === sec.key);
+                items.forEach(item => {
+                    const collected = gameState.collectedIds.has(item.id);
+                    const card = document.createElement('div');
+                    card.id = `species-card-${item.id}`;
+                    card.className = `flex items-center gap-2.5 p-2 rounded-xl border transition-all duration-300 ${
+                        collected
+                            ? 'bg-[#1a4d3e] border-[#a3c954] shadow-sm'
+                            : 'bg-[#091c17]/90 border-[#1e473b] opacity-85'
+                    }`;
+
+                    card.innerHTML = `
+                        <div class="w-10 h-10 rounded-lg bg-[#0d2620] border border-[#2a5c4e] p-1 shrink-0 flex items-center justify-center">
+                            ${getItemSVG(item.id)}
+                        </div>
+                        <div class="flex-grow min-w-0">
+                            <div class="flex items-center justify-between gap-1">
+                                <span class="font-display font-bold text-xs sm:text-sm truncate ${collected ? 'text-[#a3c954]' : 'text-[#f4f1ea]'}">
+                                    ${item.commonName}
+                                </span>
+                                <span class="text-xs font-bold shrink-0 ${collected ? 'text-[#a3c954]' : 'text-gray-500'}">
+                                    ${collected ? '✅' : '⬜'}
+                                </span>
+                            </div>
+                            <div class="text-[11px] italic text-amber-300/90 truncate">
+                                ${item.scientificName}
+                            </div>
+                            <div class="text-[11px] text-gray-300 leading-tight mt-0.5">
+                                ${item.role}
+                            </div>
+                        </div>
+                    `;
+                    sectionWrapper.appendChild(card);
+                });
+
+                listContainer.appendChild(sectionWrapper);
+            });
+
+            // Leyenda de distracciones
+            const legendContainer = document.getElementById('distractions-legend');
+            legendContainer.innerHTML = '';
+            DISTRACTIONS_DATA.forEach(d => {
+                const pill = document.createElement('span');
+                pill.className = 'inline-flex items-center gap-1 bg-[#261114] border border-rose-900/70 text-rose-200 px-2 py-0.5 rounded-full';
+                pill.innerHTML = `<span class="w-3.5 h-3.5 inline-block">${getItemSVG(d.id)}</span> ${d.name}`;
+                legendContainer.appendChild(pill);
+            });
+        }
+
+        function updateHUD() {
+            const count = gameState.collectedIds.size;
+            document.getElementById('hud-collected').textContent = `${count} / 10`;
+            document.getElementById('checklist-badge').textContent = `${count}/10`;
+            document.getElementById('hud-score').textContent = gameState.score;
+
+            let heartsStr = '';
+            for (let i = 0; i < 5; i++) {
+                heartsStr += i < gameState.hearts ? '❤️' : '🖤';
+            }
+            document.getElementById('hud-hearts').textContent = heartsStr;
+        }
+
+        function setFeedback() {}
+
+        /**
+         * ============================================================================
+         * 6. LÓGICA DEL JUEGO Y MOVIMIENTO
+         * ============================================================================
+         */
+        function resetGame() {
+            gameState.status = 'playing';
+            gameState.score = 0;
+            gameState.hearts = 5;
+            gameState.collectedIds = new Set();
+            gameState.player = {
+                gridX: START_POS.x,
+                gridY: START_POS.y,
+                renderX: START_POS.x,
+                renderY: START_POS.y,
+                facing: 1,
+                wingPhase: 0
+            };
+
+            // Generar laberinto con pasillos abiertos alternativos y callejones tapados,
+            // garantizando por BFS que siempre haya ruta libre hacia las 10 especies.
+            let placement = null;
+            for (let attempt = 0; attempt < 15; attempt++) {
+                mazeGrid = generateStrategicMaze();
+                placement = placeEntitiesSafely(mazeGrid);
+                if (
+                    placement.selectedFoods.length === SPECIES_DATA.length &&
+                    placement.selectedDistractions.length === DISTRACTIONS_DATA.length
+                ) {
+                    break;
+                }
+            }
+
+            gameState.foods = SPECIES_DATA.map((species, idx) => ({
+                ...species,
+                x: placement.selectedFoods[idx].x,
+                y: placement.selectedFoods[idx].y,
+                collected: false,
+                pulseOffset: Math.random() * Math.PI * 2
+            }));
+
+            gameState.distractions = DISTRACTIONS_DATA.map((dist, idx) => ({
+                ...dist,
+                x: placement.selectedDistractions[idx].x,
+                y: placement.selectedDistractions[idx].y,
+                cooldown: 0
+            }));
+
+            // Luciérnagas ambientales de la selva
+            gameState.fireflies = Array.from({ length: 18 }, () => ({
+                x: Math.random() * COLS,
+                y: Math.random() * ROWS,
+                vx: (Math.random() - 0.5) * 0.015,
+                vy: (Math.random() - 0.5) * 0.015,
+                phase: Math.random() * Math.PI * 2
+            }));
+
+            gameState.particles = [];
+
+            document.getElementById('start-overlay').classList.add('hidden');
+            stopMusic();
+            document.getElementById('end-overlay').classList.add('hidden');
+
+            buildSpeciesSidebar();
+            updateHUD();
+            setFeedback(
+                'info',
+                '¡Vuelo nocturno iniciado!',
+                'Explora los caminos alternativos de la selva y recolecta las 10 especies nativas.'
+            );
+        }
+
+        function spawnParticles(gridX, gridY, color) {
+            for (let i = 0; i < 14; i++) {
+                const angle = (Math.PI * 2 * i) / 14;
+                const speed = 0.03 + Math.random() * 0.05;
+                gameState.particles.push({
+                    x: gridX + 0.5,
+                    y: gridY + 0.5,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    life: 1.0,
+                    color
+                });
+            }
+        }
+
+        function movePlayer(dx, dy) {
+            if (gameState.status !== 'playing') return;
+
+            if (dx > 0) gameState.player.facing = 1;
+            if (dx < 0) gameState.player.facing = -1;
+
+            const targetX = gameState.player.gridX + dx;
+            const targetY = gameState.player.gridY + dy;
+
+            // Verificar límites y muros de selva
+            if (
+                targetX >= 0 &&
+                targetX < COLS &&
+                targetY >= 0 &&
+                targetY < ROWS &&
+                mazeGrid[targetY] &&
+                mazeGrid[targetY][targetX] === 0
+            ) {
+                gameState.player.gridX = targetX;
+                gameState.player.gridY = targetY;
+                checkCellInteractions(targetX, targetY);
+            }
+        }
+
+        function checkCellInteractions(x, y) {
+            // 1. Verificar si recolectó un alimento o flor nativa
+            const food = gameState.foods.find(f => !f.collected && f.x === x && f.y === y);
+            if (food) {
+                food.collected = true;
+                gameState.collectedIds.add(food.id);
+                gameState.score += 100;
+                playTone('collect');
+                spawnParticles(x, y, '#a3c954');
+
+                const actionLabel = food.category === 'dispersed' ? 'Fruto dispersado' : 'Flor polinizada';
+                setFeedback(
+                    'good',
+                    `✅ ${food.commonName} (${food.scientificName}) — +100 pts`,
+                    `${actionLabel}: ${food.role}`,
+                    food.id
+                );
+
+                buildSpeciesSidebar();
+                updateHUD();
+
+                // Scroll automático hacia la tarjeta recolectada en el panel derecho
+                const cardEl = document.getElementById(`species-card-${food.id}`);
+                if (cardEl) {
+                    cardEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+
+                // Verificar victoria (10/10 recolectados)
+                if (gameState.collectedIds.size === SPECIES_DATA.length) {
+                    triggerEndGame(true);
+                }
+                return;
+            }
+
+            // 2. Verificar si tocó una distracción
+            const dist = gameState.distractions.find(d => d.x === x && d.y === y);
+            if (dist && dist.cooldown <= 0) {
+                dist.cooldown = 45; // Evita doble golpe inmediato en la misma celda
+                gameState.hearts = Math.max(0, gameState.hearts - 1);
+                gameState.score = Math.max(0, gameState.score - 30);
+                playTone('distraction');
+                spawnParticles(x, y, '#ef4444');
+
+                const wrapper = document.getElementById('maze-wrapper');
+                wrapper.classList.remove('damage-flash');
+                void wrapper.offsetWidth; // Reiniciar animación CSS
+                wrapper.classList.add('damage-flash');
+
+                setFeedback(
+                    'bad',
+                    `⚠️ ¡Distracción: ${dist.name}! (-1 Energía, -30 pts)`,
+                    dist.message,
+                    dist.id
+                );
+
+                updateHUD();
+
+                if (gameState.hearts <= 0) {
+                    triggerEndGame(false);
+                }
+            }
+        }
+
+        function triggerEndGame(won) {
+            gameState.status = won ? 'won' : 'gameover';
+            const overlay = document.getElementById('end-overlay');
+            const badge = document.getElementById('end-badge');
+            const title = document.getElementById('end-title');
+            const scoreSummary = document.getElementById('end-score-summary');
+
+            if (won) {
+                const energyBonus = gameState.hearts * 50;
+                gameState.score += energyBonus;
+                updateHUD();
+                stopMusic();
+                playTone('win');
+                title.textContent = '¡Ganaste!';
+            } else {
+                title.textContent = 'Juego terminado';
+            }
+            overlay.classList.remove('hidden');
+        }
+
+        /**
+         * ============================================================================
+         * 7. RENDERIZADO DEL CANVAS Y BUCLE DE ANIMACIÓN
+         * ============================================================================
+         */
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        function resizeCanvas() {
+            const wrapper = document.getElementById('maze-wrapper');
+            const rect = wrapper.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            canvas.width = rect.width * dpr;
+            canvas.height = rect.height * dpr;
+            ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        function drawGame(timestamp) {
+            const wrapper = document.getElementById('maze-wrapper');
+            const width = wrapper.clientWidth;
+            const height = wrapper.clientHeight;
+            const cellW = width / COLS;
+            const cellH = height / ROWS;
+
+            // 1. Fondo nocturno de suelo de selva / cacaotal
+            ctx.fillStyle = '#071713';
+            ctx.fillRect(0, 0, width, height);
+
+            // Textura sutil de sendero
+            for (let r = 0; r < ROWS; r++) {
+                for (let c = 0; c < COLS; c++) {
+                    const px = c * cellW;
+                    const py = r * cellH;
+
+                    if (mazeGrid[r] && mazeGrid[r][c] === 1) {
+                        // Muro visual: un árbol compacto por celda, sin alterar la matriz.
+                        drawWallTree(px + cellW * 0.5, py + cellH * 0.52, Math.min(cellW, cellH) * 0.84);
+                    } else {
+                        // Sendero navegable
+                        ctx.strokeStyle = 'rgba(47, 105, 88, 0.12)';
+                        ctx.lineWidth = 1;
+                        ctx.strokeRect(px, py, cellW, cellH);
+                    }
+                }
+            }
+
+            // 2. Dibujar los 10 Alimentos y Flores Nativas
+            gameState.foods.forEach(food => {
+                if (food.collected) return;
+                const cx = (food.x + 0.5) * cellW;
+                const cy = (food.y + 0.5) * cellH;
+                const pulse = Math.sin(timestamp * 0.004 + food.pulseOffset) * 2.5;
+                const radius = Math.min(cellW, cellH) * 0.42;
+
+                // Aura dorada/verde suave indicando especie nativa
+                const grad = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius * 1.25);
+                grad.addColorStop(0, 'rgba(163, 201, 84, 0.35)');
+                grad.addColorStop(1, 'rgba(163, 201, 84, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius * 1.25, 0, Math.PI * 2);
+                ctx.fill();
+
+                const img = itemImages[food.id];
+                if (img && img.complete) {
+                    const size = Math.min(cellW, cellH) * 0.82 + pulse;
+                    ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+                }
+            });
+
+            // 3. Dibujar las 7 Distracciones (con aura rojiza de advertencia)
+            gameState.distractions.forEach(dist => {
+                if (dist.cooldown > 0) dist.cooldown--;
+
+                const cx = (dist.x + 0.5) * cellW;
+                const cy = (dist.y + 0.5) * cellH;
+                const radius = Math.min(cellW, cellH) * 0.4;
+
+                const grad = ctx.createRadialGradient(cx, cy, radius * 0.2, cx, cy, radius * 1.2);
+                grad.addColorStop(0, 'rgba(239, 68, 68, 0.3)');
+                grad.addColorStop(1, 'rgba(239, 68, 68, 0)');
+                ctx.fillStyle = grad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, radius * 1.2, 0, Math.PI * 2);
+                ctx.fill();
+
+                const img = itemImages[dist.id];
+                if (img && img.complete) {
+                    const size = Math.min(cellW, cellH) * 0.74;
+                    ctx.drawImage(img, cx - size / 2, cy - size / 2, size, size);
+                }
+            });
+
+            // 4. Interpolación suave de movimiento del Murciélago
+            gameState.player.renderX += (gameState.player.gridX - gameState.player.renderX) * 0.32;
+            gameState.player.renderY += (gameState.player.gridY - gameState.player.renderY) * 0.32;
+            gameState.player.wingPhase += 0.22;
+
+            drawBat(
+                (gameState.player.renderX + 0.5) * cellW,
+                (gameState.player.renderY + 0.5) * cellH,
+                Math.min(cellW, cellH) * 0.88,
+                gameState.player.wingPhase
+            );
+
+            // 5. Partículas de recolección / impacto
+            for (let i = gameState.particles.length - 1; i >= 0; i--) {
+                const p = gameState.particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= 0.035;
+                if (p.life <= 0) {
+                    gameState.particles.splice(i, 1);
+                    continue;
+                }
+                ctx.globalAlpha = p.life;
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x * cellW, p.y * cellH, 3.5, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1.0;
+            }
+
+            // 6. Luciérnagas nocturnas ambientales
+            gameState.fireflies.forEach(ff => {
+                ff.x += ff.vx;
+                ff.y += ff.vy;
+                if (ff.x < 0) ff.x = COLS;
+                if (ff.x > COLS) ff.x = 0;
+                if (ff.y < 0) ff.y = ROWS;
+                if (ff.y > ROWS) ff.y = 0;
+
+                const alpha = 0.25 + 0.45 * Math.sin(timestamp * 0.005 + ff.phase);
+                ctx.fillStyle = `rgba(212, 235, 110, ${alpha})`;
+                ctx.beginPath();
+                ctx.arc(ff.x * cellW, ff.y * cellH, 2, 0, Math.PI * 2);
+                ctx.fill();
+            });
+
+            requestAnimationFrame(drawGame);
+        }
+
+        function drawWallTree(cx, cy, size) {
+            const trunkW = size * 0.16;
+            const trunkH = size * 0.3;
+            const canopyY = cy - size * 0.12;
+            ctx.save();
+
+            // Sombra suave para separar el árbol del sendero nocturno.
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.28)';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy + size * 0.31, size * 0.34, size * 0.1, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Tronco marrón pequeño.
+            ctx.fillStyle = '#68452d';
+            ctx.beginPath();
+            ctx.roundRect(cx - trunkW / 2, cy + size * 0.03, trunkW, trunkH, trunkW * 0.35);
+            ctx.fill();
+
+            // Copa frondosa formada por tres volúmenes verdes.
+            ctx.fillStyle = '#164832';
+            ctx.beginPath();
+            ctx.arc(cx, canopyY, size * 0.28, 0, Math.PI * 2);
+            ctx.arc(cx - size * 0.2, canopyY + size * 0.08, size * 0.22, 0, Math.PI * 2);
+            ctx.arc(cx + size * 0.2, canopyY + size * 0.08, size * 0.22, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#2b7044';
+            ctx.beginPath();
+            ctx.arc(cx - size * 0.1, canopyY - size * 0.08, size * 0.14, 0, Math.PI * 2);
+            ctx.arc(cx + size * 0.13, canopyY + size * 0.02, size * 0.13, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = '#6f9f45';
+            ctx.beginPath();
+            ctx.arc(cx - size * 0.16, canopyY - size * 0.17, size * 0.055, 0, Math.PI * 2);
+            ctx.arc(cx + size * 0.09, canopyY - size * 0.11, size * 0.045, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.restore();
+        }
+
+        function drawBat(cx, cy, size, wingPhase) {
+            ctx.save();
+            ctx.translate(cx, cy);
+
+            const flap = Math.sin(wingPhase) * 0.32;
+            const s = size / 64;
+            ctx.scale(s, s);
+
+            // Halo nocturno sutil alrededor del jugador
+            ctx.fillStyle = 'rgba(255, 235, 150, 0.14)';
+            ctx.beginPath();
+            ctx.arc(0, 0, 30, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Ala izquierda
+            ctx.save();
+            ctx.rotate(flap);
+            ctx.fillStyle = '#5e4637';
+            ctx.strokeStyle = '#241811';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(-4, -4);
+            ctx.quadraticCurveTo(-22, -20, -32, -6);
+            ctx.quadraticCurveTo(-24, 0, -22, 8);
+            ctx.quadraticCurveTo(-14, 4, -8, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // Ala derecha
+            ctx.save();
+            ctx.rotate(-flap);
+            ctx.fillStyle = '#5e4637';
+            ctx.strokeStyle = '#241811';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(4, -4);
+            ctx.quadraticCurveTo(22, -20, 32, -6);
+            ctx.quadraticCurveTo(24, 0, 22, 8);
+            ctx.quadraticCurveTo(14, 4, 8, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.stroke();
+            ctx.restore();
+
+            // Cuerpo del murciélago
+            ctx.fillStyle = '#473327';
+            ctx.beginPath();
+            ctx.ellipse(0, 2, 8, 11, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Orejas grandes (típicas de murciélagos frugívoros/nectarívoros)
+            ctx.fillStyle = '#473327';
+            ctx.beginPath();
+            ctx.moveTo(-6, -6);
+            ctx.lineTo(-9, -18);
+            ctx.lineTo(-2, -9);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.beginPath();
+            ctx.moveTo(6, -6);
+            ctx.lineTo(9, -18);
+            ctx.lineTo(2, -9);
+            ctx.closePath();
+            ctx.fill();
+
+            // Ojos brillantes
+            ctx.fillStyle = '#ffd166';
+            ctx.beginPath();
+            ctx.arc(-3, -3, 2, 0, Math.PI * 2);
+            ctx.arc(3, -3, 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Hocico / hoja nasal pequeña
+            ctx.fillStyle = '#d49a89';
+            ctx.beginPath();
+            ctx.moveTo(0, -2);
+            ctx.lineTo(-2, 1);
+            ctx.lineTo(2, 1);
+            ctx.closePath();
+            ctx.fill();
+
+            ctx.restore();
+        }
+
+        /**
+         * ============================================================================
+         * 8. EVENTOS DE TECLADO, BOTONES TÁCTILES Y GESTOS DESLIZANTES (SWIPE)
+         * ============================================================================
+         */
+        window.addEventListener('keydown', (e) => {
+            const key = e.key.toLowerCase();
+            if (['arrowup', 'arrowdown', 'arrowleft', 'arrowright', ' '].includes(key)) {
+                e.preventDefault();
+            }
+            if (key === 'arrowup' || key === 'w') movePlayer(0, -1);
+            if (key === 'arrowdown' || key === 's') movePlayer(0, 1);
+            if (key === 'arrowleft' || key === 'a') movePlayer(-1, 0);
+            if (key === 'arrowright' || key === 'd') movePlayer(1, 0);
+        });
+
+        // Botones direccionales en pantalla
+        function bindDirectionButton(id, dx, dy) {
+            const btn = document.getElementById(id);
+            const trigger = (e) => {
+                e.preventDefault();
+                movePlayer(dx, dy);
+            };
+            btn.addEventListener('click', trigger);
+            btn.addEventListener('touchstart', trigger, { passive: false });
+        }
+
+
+        // Soporte de deslizamiento táctil (Swipe) directamente sobre el laberinto
+        let touchStartX = 0;
+        let touchStartY = 0;
+        const mazeWrapper = document.getElementById('maze-wrapper');
+
+        mazeWrapper.addEventListener('touchstart', (e) => {
+            if (e.touches.length > 0) {
+                touchStartX = e.touches[0].clientX;
+                touchStartY = e.touches[0].clientY;
+            }
+        }, { passive: true });
+
+        mazeWrapper.addEventListener('touchend', (e) => {
+            if (e.changedTouches.length > 0 && gameState.status === 'playing') {
+                const dx = e.changedTouches[0].clientX - touchStartX;
+                const dy = e.changedTouches[0].clientY - touchStartY;
+                if (Math.abs(dx) > 22 || Math.abs(dy) > 22) {
+                    if (Math.abs(dx) > Math.abs(dy)) {
+                        movePlayer(dx > 0 ? 1 : -1, 0);
+                    } else {
+                        movePlayer(0, dy > 0 ? 1 : -1);
+                    }
+                }
+            }
+        }, { passive: true });
+
+        // Botones de inicio, reinicio y sonido
+        document.getElementById('btn-start').addEventListener('click', () => {
+            initAudio();
+            resetGame();
+            startMusic();
+        });
+
+        document.getElementById('btn-restart').addEventListener('click', () => {
+            initAudio();
+            resetGame();
+            startMusic();
+        });
+
+        document.getElementById('btn-sound').addEventListener('click', (e) => {
+            soundEnabled = !soundEnabled;
+            e.target.textContent = soundEnabled ? '🔊' : '🔇';
+            if (soundEnabled) {
+                initAudio();
+                startMusic();
+            } else {
+                stopMusic();
+            }
+        });
+
+        window.addEventListener('resize', resizeCanvas);
+
+        window.onload = function () {
+            preloadAllSVGs();
+            mazeGrid = generateStrategicMaze();
+            buildSpeciesSidebar();
+            updateHUD();
+            resizeCanvas();
+            requestAnimationFrame(drawGame);
+        };
+        const memorySpecies = [
+            { key:'guayaba', name:'Guayaba', scientific:'Psidium guajava', description:'Alimento preferido por frugívoros generalistas.', image:'IMG/Guayaba.webp' },
+            { key:'jobo', name:'Jobo', scientific:'Spondias mombin', description:'Fuente de energía crítica; dispersión en zonas rurales.', image:'IMG/Jobo.webp' },
+            { key:'pimienta-gorda', name:'Pimienta gorda', scientific:'Pimenta dioica', description:'Dispersada en cacaotales.', image:'IMG/Pimienta%20Gorda.webp' },
+            { key:'cactus-trepador', name:'Cactus trepador', scientific:'Acanthocereus tetragonus', description:'Flor nocturna, vital en zonas de dunas y costas.', image:'IMG/Cactus%20trepador.webp' },
+            { key:'pitahaya-real', name:'Pitahaya real', scientific:'Selenicereus undatus', description:'Flores nocturnas de gran tamaño; néctar especializado.', image:'IMG/Pitahaya%20real.webp' },
+            { key:'orquidea-nocturna', name:'Orquídea nocturna', scientific:'Brassavola nodosa', description:'Perfume intenso nocturno para atraer murciélagos.', image:'IMG/Orquídea%20nocturna.webp' }
+        ];
+        let memoryDeck = [], memoryFirst = null, memorySecond = null, memoryBusy = false, memoryPendingCompletion = false;
+        let memoryPairsFound = 0, memoryAttempts = 0, memoryScore = 0;
+
+        function shuffleMemory(items) {
+            const copy = [...items];
+            for (let i = copy.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [copy[i], copy[j]] = [copy[j], copy[i]];
+            }
+            return copy;
+        }
+
+        function updateMemoryHUD() {
+            document.getElementById('memory-pairs').textContent = `${memoryPairsFound} / ${memorySpecies.length}`;
+            document.getElementById('memory-attempts').textContent = memoryAttempts;
+            document.getElementById('memory-score').textContent = memoryScore;
+        }
+
+        function renderMemoryBoard() {
+            const board = document.getElementById('memory-board');
+            board.innerHTML = '';
+            memoryDeck.forEach((cardData, index) => {
+                const card = document.createElement('button');
+                card.type = 'button';
+                card.className = 'memory-card';
+                card.dataset.key = cardData.key;
+                card.dataset.index = index;
+                card.setAttribute('aria-label', `Tarjeta de ${cardData.name}, boca abajo`);
+                card.innerHTML = `<span class="memory-card-inner"><span class="memory-face memory-back" aria-hidden="true">🦇</span><span class="memory-face memory-front"><img src="${cardData.image}" alt="${cardData.name}"></span></span>`;
+                card.addEventListener('click', () => flipMemoryCard(card));
+                board.appendChild(card);
+            });
+        }
+
+        function resetMemoryGame() {
+            memoryDeck = shuffleMemory(memorySpecies.flatMap(species => [species, species]));
+            memoryFirst = null;
+            memorySecond = null;
+            memoryBusy = false;
+            memoryPendingCompletion = false;
+            memoryPairsFound = 0;
+            memoryAttempts = 0;
+            memoryScore = 0;
+            document.getElementById('memory-complete').classList.add('hidden');
+            const infoModal = document.getElementById('memory-info-modal');
+            infoModal.classList.add('hidden');
+            infoModal.classList.remove('is-closing');
+            document.getElementById('memory-feedback').textContent = 'Encuentra todas las parejas.';
+            updateMemoryHUD();
+            renderMemoryBoard();
+        }
+
+        function flipMemoryCard(card) {
+            if (memoryBusy || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            card.classList.add('flipped');
+            card.setAttribute('aria-label', `Tarjeta de ${card.querySelector('img').alt}`);
+            if (!memoryFirst) {
+                memoryFirst = card;
+                return;
+            }
+            memorySecond = card;
+            memoryBusy = true;
+            memoryAttempts++;
+            updateMemoryHUD();
+            const matches = memoryFirst.dataset.key === memorySecond.dataset.key;
+            if (matches) {
+                window.setTimeout(() => {
+                    memoryFirst.classList.add('matched');
+                    memorySecond.classList.add('matched');
+                    memoryPairsFound++;
+                    memoryScore += 10;
+                    const species = memorySpecies.find(item => item.key === memoryFirst.dataset.key);
+                    document.getElementById('memory-feedback').textContent = `¡Pareja encontrada! ${species.name}`;
+                    updateMemoryHUD();
+                    memoryFirst = null;
+                    memorySecond = null;
+                    memoryPendingCompletion = memoryPairsFound === memorySpecies.length;
+                    memoryBusy = true;
+                    window.setTimeout(() => showMemoryInfo(species, memoryPendingCompletion), 350);
+                }, 500);
+            } else {
+                document.getElementById('memory-feedback').textContent = 'Observa con atención…';
+                window.setTimeout(() => {
+                    memoryFirst.classList.remove('flipped');
+                    memorySecond.classList.remove('flipped');
+                    memoryFirst.setAttribute('aria-label', 'Tarjeta boca abajo');
+                    memorySecond.setAttribute('aria-label', 'Tarjeta boca abajo');
+                    memoryFirst = null;
+                    memorySecond = null;
+                    memoryBusy = false;
+                    document.getElementById('memory-feedback').textContent = 'Intenta encontrar otra pareja.';
+                }, 850);
+            }
+        }
+
+        function showMemoryInfo(species, isFinalPair) {
+            const modal = document.getElementById('memory-info-modal');
+            const image = document.getElementById('memory-info-image');
+            image.src = species.image;
+            image.alt = species.name;
+            document.getElementById('memory-info-common').textContent = species.name;
+            document.querySelector('#memory-info-scientific em').textContent = species.scientific;
+            document.getElementById('memory-info-description').textContent = species.description;
+            modal.dataset.finalPair = isFinalPair ? 'true' : 'false';
+            modal.classList.remove('hidden', 'is-closing');
+            document.getElementById('memory-info-accept').focus();
+        }
+
+        function closeMemoryInfo() {
+            const modal = document.getElementById('memory-info-modal');
+            if (modal.classList.contains('hidden') || modal.classList.contains('is-closing')) return;
+            const isFinalPair = modal.dataset.finalPair === 'true';
+            modal.classList.add('is-closing');
+            window.setTimeout(() => {
+                modal.classList.add('hidden');
+                modal.classList.remove('is-closing');
+                memoryBusy = false;
+                memoryPendingCompletion = false;
+                if (isFinalPair) {
+                    document.getElementById('memory-final-score').textContent = memoryScore;
+                    document.getElementById('memory-complete').classList.remove('hidden');
+                }
+            }, 240);
+        }
+
+        function setGameScreen(screen) {
+            const isAdventures = screen === 'aventuras';
+            const isMaze = screen === 'laberinto';
+            const isMemory = screen === 'memorama';
+            document.body.dataset.gameScreen = screen;
+            document.getElementById('game-screen-title').textContent = isAdventures ? 'Aventuras' : isMaze ? 'Laberinto' : 'Memorama';
+            document.getElementById('adventure-nav').classList.toggle('game-content-hidden', !isAdventures);
+            document.getElementById('game-menu-button').classList.toggle('game-content-hidden', isAdventures);
+            document.getElementById('maze-status').classList.toggle('game-content-hidden', !isMaze);
+            document.getElementById('memory-status').classList.toggle('game-content-hidden', !isMemory);
+            document.getElementById('game-selection').classList.toggle('game-content-hidden', !isAdventures);
+            document.getElementById('game-main').classList.toggle('game-content-hidden', !isMaze);
+            document.getElementById('memory-view').classList.toggle('game-content-hidden', !isMemory);
+            document.getElementById('memory-complete').classList.add('hidden');
+        }
+
+        function showGameSelection() {
+            setGameScreen('aventuras');
+            if (typeof stopMusic === 'function') stopMusic();
+        }
+
+        function openMazeGame() {
+            setGameScreen('laberinto');
+            window.requestAnimationFrame(() => {
+                if (typeof resizeCanvas === 'function') resizeCanvas();
+            });
+        }
+
+        function openMemoryGame() {
+            setGameScreen('memorama');
+            resetMemoryGame();
+            if (typeof stopMusic === 'function') stopMusic();
+        }
+
+        setGameScreen('aventuras');
+        resetMemoryGame();
+    </script>
+</body>
+</html>
