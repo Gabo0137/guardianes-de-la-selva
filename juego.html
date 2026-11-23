@@ -376,6 +376,101 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   .game-btn{font-size:.88rem;}
 }
 </style>
+<style>
+/* Corrección final del menú y marcadores en teléfonos. */
+@media (max-width:700px){
+  html,body{height:auto!important;min-height:100%!important;overflow-x:hidden!important;overflow-y:auto!important;}
+  body>main{height:auto!important;min-height:0!important;overflow:visible!important;}
+
+  body[data-game-screen="aventuras"] #game-header{
+    display:grid!important;
+    height:auto!important;
+    min-height:0!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"title" "left"!important;
+    gap:12px!important;
+    margin-bottom:18px!important;
+    padding:14px 12px!important;
+  }
+  body[data-game-screen="aventuras"] #game-title-group{
+    grid-area:title!important;
+    width:100%;
+    justify-content:center;
+  }
+  body[data-game-screen="aventuras"] #adventure-nav{
+    grid-area:left!important;
+    width:100%;
+    justify-content:center;
+  }
+  body[data-game-screen="aventuras"] #adventure-nav .game-btn{
+    flex:1 1 120px;
+    min-width:0;
+    min-height:44px;
+    padding:10px 12px;
+    font-size:.92rem;
+  }
+  body[data-game-screen="aventuras"] #game-selection{
+    display:flex!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:visible!important;
+    padding:0 2px 28px!important;
+    gap:18px!important;
+  }
+  body[data-game-screen="aventuras"] .game-choice-grid{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    width:100%!important;
+    height:auto!important;
+    overflow:visible!important;
+    gap:16px!important;
+  }
+  body[data-game-screen="aventuras"] .game-choice{
+    display:flex!important;
+    width:100%!important;
+    height:auto!important;
+    min-height:0!important;
+  }
+  body[data-game-screen="aventuras"] .game-choice-art{
+    flex:0 0 clamp(135px,34vw,190px)!important;
+    height:auto!important;
+  }
+  body[data-game-screen="aventuras"] .game-choice-body{
+    padding:18px!important;
+  }
+  body[data-game-screen="aventuras"] .game-choice-body .game-btn{
+    width:100%;
+  }
+
+  #maze-status,
+  #memory-status{
+    grid-area:right!important;
+    display:flex!important;
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+    flex-wrap:wrap!important;
+    justify-content:center!important;
+    gap:6px!important;
+    overflow:visible!important;
+  }
+  #maze-status>div,
+  #memory-status>div{
+    flex:1 1 78px;
+    min-width:0!important;
+    max-width:145px;
+    padding-left:8px!important;
+    padding-right:8px!important;
+  }
+  #maze-status>#btn-sound{
+    flex:0 0 42px;
+    min-width:42px;
+    padding:7px!important;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
