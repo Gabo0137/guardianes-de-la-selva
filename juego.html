@@ -444,8 +444,31 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
     width:100%;
   }
 
-  #maze-status,
-  #memory-status{
+  body[data-game-screen="laberinto"] #game-header,
+  body[data-game-screen="memorama"] #game-header{
+    display:grid!important;
+    height:auto!important;
+    min-height:0!important;
+    grid-template-columns:1fr!important;
+    grid-template-rows:auto auto auto!important;
+    grid-template-areas:"title" "left" "right"!important;
+    gap:10px!important;
+    margin-bottom:16px!important;
+    padding:12px 10px!important;
+  }
+  body[data-game-screen="laberinto"] #game-title-group,
+  body[data-game-screen="memorama"] #game-title-group{
+    grid-area:title!important;
+    width:100%;
+    justify-content:center;
+  }
+  body[data-game-screen="laberinto"] #game-menu-button,
+  body[data-game-screen="memorama"] #game-menu-button{
+    grid-area:left!important;
+    justify-self:center!important;
+  }
+  #maze-status:not(.game-content-hidden),
+  #memory-status:not(.game-content-hidden){
     grid-area:right!important;
     display:flex!important;
     width:100%!important;
@@ -456,15 +479,15 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
     gap:6px!important;
     overflow:visible!important;
   }
-  #maze-status>div,
-  #memory-status>div{
+  #maze-status:not(.game-content-hidden)>div,
+  #memory-status:not(.game-content-hidden)>div{
     flex:1 1 78px;
     min-width:0!important;
     max-width:145px;
     padding-left:8px!important;
     padding-right:8px!important;
   }
-  #maze-status>#btn-sound{
+  #maze-status:not(.game-content-hidden)>#btn-sound{
     flex:0 0 42px;
     min-width:42px;
     padding:7px!important;
