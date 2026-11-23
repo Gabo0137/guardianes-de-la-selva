@@ -506,7 +506,7 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
 
   body[data-game-screen="laberinto"] #maze-status{
     display:grid!important;
-    grid-template-columns:repeat(2,minmax(0,1fr));
+    grid-template-columns:repeat(3,minmax(0,1fr));
   }
   body[data-game-screen="laberinto"] #maze-status>div{
     width:auto!important;
@@ -522,9 +522,6 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   body[data-game-screen="laberinto"] #maze-status>div>div:last-child{
     font-size:1.05rem!important;
     line-height:1.15;
-  }
-  body[data-game-screen="laberinto"] #maze-status>div:nth-child(3){
-    grid-column:1/-1;
   }
   body[data-game-screen="laberinto"] #maze-status>#btn-sound{
     grid-column:1/-1;
