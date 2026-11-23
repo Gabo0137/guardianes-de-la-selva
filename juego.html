@@ -646,6 +646,64 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* Encabezado compacto del Memorama en teléfonos. */
+@media (max-width:700px){
+  body[data-game-screen="memorama"] #game-header{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"left title" "right right"!important;
+    align-items:center!important;
+    gap:8px!important;
+    padding:10px!important;
+    margin-bottom:12px!important;
+  }
+  body[data-game-screen="memorama"] #game-menu-button{
+    grid-area:left!important;
+    justify-self:start!important;
+    width:40px!important;
+    height:40px!important;
+  }
+  body[data-game-screen="memorama"] #game-title-group{
+    grid-area:title!important;
+    width:auto!important;
+    justify-content:flex-start!important;
+    min-width:0;
+  }
+  body[data-game-screen="memorama"] #game-title-group>div:first-child{
+    width:42px!important;
+    height:42px!important;
+  }
+  body[data-game-screen="memorama"] #game-title-group h1{
+    font-size:clamp(1.5rem,6.8vw,2.1rem)!important;
+    white-space:nowrap;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden){
+    grid-area:right!important;
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    width:100%!important;
+    gap:5px!important;
+    align-items:stretch!important;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden) .memory-stat{
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    min-height:50px!important;
+    padding:6px 3px!important;
+    border-radius:12px!important;
+    font-size:clamp(.7rem,3vw,.9rem)!important;
+    line-height:1.05!important;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden) .memory-stat b{
+    margin-top:4px;
+    font-size:clamp(.9rem,3.8vw,1.1rem)!important;
+    line-height:1.1!important;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
