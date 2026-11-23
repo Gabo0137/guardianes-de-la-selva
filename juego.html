@@ -181,9 +181,171 @@
 <style>
 .menu-arrow-icon{width:24px;height:24px;display:block;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 </style>
+<style>
+/* Composición original de la pantalla Aventuras.  Se mantiene aislada de las
+   pantallas del laberinto y del memorama para no afectar su funcionamiento. */
+body[data-game-screen="aventuras"] {
+    box-sizing: border-box;
+    min-height: 100dvh;
+    height: auto;
+    padding: 16px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    justify-content: flex-start;
+}
+
+body[data-game-screen="aventuras"] #game-header {
+    width: 100%;
+    max-width: none;
+    height: 96px;
+    min-height: 96px;
+    margin: 0 0 28px;
+    padding: 14px 20px;
+    border-radius: 24px;
+    grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
+    grid-template-rows: 1fr;
+    gap: 16px;
+}
+
+body[data-game-screen="aventuras"] #game-title-group {
+    grid-column: 2;
+    grid-row: 1;
+    justify-self: center;
+    position: static;
+    transform: none;
+}
+
+body[data-game-screen="aventuras"] #game-title-group h1 {
+    margin: 0;
+    font: 700 clamp(2rem, 2.2vw, 2.25rem)/1.1 'Fredoka', sans-serif;
+    letter-spacing: 0;
+}
+
+body[data-game-screen="aventuras"] #adventure-nav {
+    grid-column: 1;
+    grid-row: 1;
+    justify-self: start;
+    gap: 12px;
+}
+
+body[data-game-screen="aventuras"] #adventure-nav .game-btn {
+    min-height: 50px;
+    padding: 11px 19px;
+    border-radius: 16px;
+    font: 700 1.05rem/1 'Fredoka', sans-serif;
+}
+
+body[data-game-screen="aventuras"] #game-selection {
+    flex: 0 0 auto;
+    width: min(92%, 1120px);
+    min-height: 0;
+    margin: 0 auto;
+    padding: 0;
+    gap: 22px;
+    justify-content: flex-start;
+}
+
+body[data-game-screen="aventuras"] .game-selection-heading p {
+    margin: 0;
+    max-width: none;
+    color: #d6e5d4;
+    font-size: clamp(1rem, 1.12vw, 1.25rem);
+    line-height: 1.3;
+}
+
+body[data-game-screen="aventuras"] .game-choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(18px, 1.5vw, 24px);
+}
+
+body[data-game-screen="aventuras"] .game-choice {
+    height: clamp(380px, calc(100dvh - 300px), 445px);
+    min-height: 0;
+    border-radius: 26px;
+}
+
+body[data-game-screen="aventuras"] .game-choice-art {
+    flex: 0 0 clamp(165px, 20dvh, 205px);
+    height: auto;
+}
+
+body[data-game-screen="aventuras"] .game-choice-body {
+    padding: 22px;
+}
+
+body[data-game-screen="aventuras"] .game-choice-body h3 {
+    font-size: clamp(1.7rem, 2.2vw, 2.2rem);
+    line-height: 1.1;
+}
+
+body[data-game-screen="aventuras"] .game-choice-body p {
+    margin: 10px 0 14px;
+    color: #d6e5d4;
+    font-size: clamp(0.98rem, 1.12vw, 1.25rem);
+    line-height: 1.4;
+}
+
+body[data-game-screen="aventuras"] .game-choice-body .game-btn {
+    min-height: 52px;
+    padding: 10px 22px;
+    border-radius: 15px;
+    font-size: clamp(1rem, 1.15vw, 1.2rem);
+}
+
+@media (max-width: 700px) {
+    body[data-game-screen="aventuras"] {
+        padding: 12px;
+    }
+
+    body[data-game-screen="aventuras"] #game-header {
+        min-height: 0;
+        height: auto;
+        margin-bottom: 28px;
+        padding: 20px;
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+    }
+
+    body[data-game-screen="aventuras"] #game-title-group,
+    body[data-game-screen="aventuras"] #adventure-nav {
+        grid-column: 1;
+        grid-row: auto;
+        justify-self: center;
+    }
+
+    body[data-game-screen="aventuras"] #game-title-group { order: 0; }
+    body[data-game-screen="aventuras"] #adventure-nav { order: 1; }
+    body[data-game-screen="aventuras"] #adventure-nav .game-btn {
+        min-height: 52px;
+        padding: 12px 18px;
+        font-size: 1.05rem;
+    }
+
+    body[data-game-screen="aventuras"] #game-selection {
+        gap: 26px;
+    }
+
+    body[data-game-screen="aventuras"] .game-choice-grid {
+        grid-template-columns: 1fr;
+    }
+
+    body[data-game-screen="aventuras"] .game-choice {
+        height: auto;
+        min-height: 460px;
+    }
+
+    body[data-game-screen="aventuras"] .game-choice-art {
+        flex-basis: 200px;
+    }
+
+    body[data-game-screen="aventuras"] .game-choice-body {
+        padding: 26px;
+    }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
-    <audio id="game-music" src="MUsic.mp3" preload="auto" loop aria-hidden="true"></audio>
+    <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
 
     <!-- ENCABEZADO SUPERIOR -->
     <header id="game-header" class="max-w-7xl w-full mx-auto mb-3 flex flex-col md:flex-row items-center justify-between gap-2 eco-card rounded-2xl px-4 py-2.5">
@@ -246,11 +408,11 @@
         </div>
         <div class="game-choice-grid">
             <article class="game-choice">
-                <div class="game-choice-art"><img src="Murciélago%20feliz%20comiendo%20mango%20bajo%20la%20luna.webp" alt="Murciélago en la selva nocturna"></div>
+                <div class="game-choice-art"><img src="Murciélago%20feliz%20comiendo%20mango%20bajo%20la%20luna.webp" loading="lazy" alt="Murciélago en la selva nocturna"></div>
                 <div class="game-choice-body"><h3>Laberinto</h3><p>Explora la selva, recolecta especies y evita los obstáculos.</p><button type="button" class="game-btn px-5 py-2 rounded-xl cursor-pointer" onclick="openMazeGame()">Jugar</button></div>
             </article>
             <article class="game-choice">
-                <div class="game-choice-art"><img src="IMG/Guayaba.webp" alt="Frutas de la selva para el memorama"></div>
+                <div class="game-choice-art"><img src="IMG/Guayaba.webp" loading="lazy" alt="Frutas de la selva para el memorama"></div>
                 <div class="game-choice-body"><h3>Memorama</h3><p>Encuentra las parejas de frutas y flores de la selva.</p><button type="button" class="game-btn px-5 py-2 rounded-xl cursor-pointer" onclick="openMemoryGame()">Jugar</button></div>
             </article>
         </div>
