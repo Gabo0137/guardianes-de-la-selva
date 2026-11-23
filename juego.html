@@ -716,6 +716,54 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* Tablero completo del Memorama en una sola vista móvil. */
+@media (max-width:700px){
+  body[data-game-screen="memorama"]{
+    height:100dvh!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+  body[data-game-screen="memorama"]>main{
+    flex:1 1 auto!important;
+    height:auto!important;
+    min-height:0!important;
+    overflow:hidden!important;
+  }
+  body[data-game-screen="memorama"] #memory-view{
+    display:flex!important;
+    flex:1 1 auto!important;
+    height:100%!important;
+    min-height:0!important;
+    overflow:hidden!important;
+    padding:4px 8px 8px!important;
+    gap:6px!important;
+  }
+  body[data-game-screen="memorama"] #memory-feedback{
+    flex:0 0 auto!important;
+    min-height:22px!important;
+    font-size:clamp(.85rem,3.8vw,1.05rem)!important;
+    line-height:1.1!important;
+  }
+  body[data-game-screen="memorama"] #memory-board{
+    flex:1 1 auto!important;
+    width:100%!important;
+    height:100%!important;
+    min-height:0!important;
+    max-width:none!important;
+    aspect-ratio:auto!important;
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    grid-template-rows:repeat(4,minmax(0,1fr))!important;
+    gap:6px!important;
+  }
+  body[data-game-screen="memorama"] #memory-board .memory-card{
+    width:auto!important;
+    height:auto!important;
+    min-height:0!important;
+    aspect-ratio:auto!important;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
