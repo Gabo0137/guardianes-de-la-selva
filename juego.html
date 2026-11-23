@@ -494,6 +494,84 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* Barras de estado compactas en teléfonos. */
+@media (max-width:700px){
+  body[data-game-screen="laberinto"] #maze-status,
+  body[data-game-screen="memorama"] #memory-status{
+    width:100%!important;
+    gap:6px!important;
+    align-items:stretch!important;
+  }
+
+  body[data-game-screen="laberinto"] #maze-status{
+    display:grid!important;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+  }
+  body[data-game-screen="laberinto"] #maze-status>div{
+    width:auto!important;
+    max-width:none!important;
+    min-height:58px;
+    padding:6px 7px!important;
+    border-radius:14px!important;
+  }
+  body[data-game-screen="laberinto"] #maze-status>div>div:first-child{
+    font-size:9px!important;
+    line-height:1.1;
+  }
+  body[data-game-screen="laberinto"] #maze-status>div>div:last-child{
+    font-size:1.05rem!important;
+    line-height:1.15;
+  }
+  body[data-game-screen="laberinto"] #maze-status>div:nth-child(3){
+    grid-column:1/-1;
+  }
+  body[data-game-screen="laberinto"] #maze-status>#btn-sound{
+    grid-column:1/-1;
+    justify-self:center;
+    width:44px!important;
+    height:40px;
+    min-width:44px!important;
+    padding:5px!important;
+    border-radius:13px!important;
+  }
+  body[data-game-screen="laberinto"] #hud-hearts{
+    font-size:1rem!important;
+    letter-spacing:-2px;
+  }
+
+  body[data-game-screen="memorama"] #memory-status{
+    display:grid!important;
+    grid-template-columns:repeat(3,minmax(0,1fr));
+  }
+  body[data-game-screen="memorama"] #memory-status .memory-stat{
+    width:auto!important;
+    max-width:none!important;
+    min-width:0!important;
+    min-height:62px;
+    padding:7px 5px!important;
+    border-radius:14px!important;
+    font-size:.92rem!important;
+    line-height:1.1;
+  }
+  body[data-game-screen="memorama"] #memory-status .memory-stat b{
+    margin-top:5px;
+    font-size:1.08rem!important;
+    line-height:1;
+  }
+}
+@media (max-width:360px){
+  body[data-game-screen="laberinto"] #maze-status>div{
+    min-height:54px;
+  }
+  body[data-game-screen="memorama"] #memory-status .memory-stat{
+    font-size:.82rem!important;
+  }
+  body[data-game-screen="memorama"] #memory-status .memory-stat b{
+    font-size:1rem!important;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
