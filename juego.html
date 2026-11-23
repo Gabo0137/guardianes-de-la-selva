@@ -569,6 +569,83 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* Encabezado compacto del Laberinto en teléfonos. */
+@media (max-width:700px){
+  body[data-game-screen="laberinto"] #game-header{
+    display:grid!important;
+    grid-template-columns:auto minmax(0,1fr)!important;
+    grid-template-rows:auto auto!important;
+    grid-template-areas:"left title" "right right"!important;
+    align-items:center!important;
+    gap:8px!important;
+    padding:10px!important;
+    margin-bottom:12px!important;
+  }
+  body[data-game-screen="laberinto"] #game-menu-button{
+    grid-area:left!important;
+    justify-self:start!important;
+    width:40px!important;
+    height:40px!important;
+  }
+  body[data-game-screen="laberinto"] #game-title-group{
+    grid-area:title!important;
+    width:auto!important;
+    justify-content:flex-start!important;
+    min-width:0;
+  }
+  body[data-game-screen="laberinto"] #game-title-group>div:first-child{
+    width:42px!important;
+    height:42px!important;
+  }
+  body[data-game-screen="laberinto"] #game-title-group h1{
+    font-size:clamp(1.55rem,7vw,2.15rem)!important;
+    white-space:nowrap;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden){
+    grid-area:right!important;
+    display:grid!important;
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    width:100%!important;
+    gap:5px!important;
+    align-items:stretch!important;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden)>div{
+    min-width:0!important;
+    width:auto!important;
+    min-height:50px!important;
+    padding:5px 3px!important;
+    border-radius:12px!important;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden)>div>div:first-child{
+    font-size:clamp(.52rem,2vw,.68rem)!important;
+    line-height:1.05!important;
+    white-space:nowrap;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden)>div>div:last-child{
+    font-size:clamp(.82rem,3.5vw,1.05rem)!important;
+    line-height:1.1!important;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden)>div:nth-child(3){
+    grid-column:auto!important;
+  }
+  body[data-game-screen="laberinto"] #maze-status:not(.game-content-hidden)>#btn-sound{
+    grid-column:auto!important;
+    justify-self:stretch!important;
+    width:auto!important;
+    height:auto!important;
+    min-width:0!important;
+    padding:5px 2px!important;
+    border-radius:12px!important;
+    font-size:1.05rem!important;
+  }
+  body[data-game-screen="laberinto"] #hud-hearts{
+    font-size:clamp(.65rem,3vw,.9rem)!important;
+    letter-spacing:-2px;
+    white-space:nowrap;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
