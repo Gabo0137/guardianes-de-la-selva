@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Laberinto | Guardianes de la Selva</title>
     <link rel="icon" type="image/png" href="murcielago.png">
     <script src="https://cdn.tailwindcss.com"></script>
@@ -341,6 +341,39 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
     body[data-game-screen="aventuras"] .game-choice-body {
         padding: 26px;
     }
+}
+</style>
+<style>
+/* Ajustes exclusivos para teléfonos: el diseño de escritorio permanece intacto. */
+@media (max-width:700px){
+  html,body{height:auto;min-height:100%;}
+  body{min-height:100dvh;overflow-x:hidden;overflow-y:auto;}
+  body>main{height:auto;min-height:0;overflow:visible;padding:0 10px 24px;}
+  #game-header{height:auto;min-height:0;padding:12px 10px;}
+  #game-title-group{white-space:normal;text-align:center;}
+  #game-title-group h1{font-size:clamp(1.55rem,7vw,2.1rem);}
+  .main-nav{width:100%;justify-content:center;flex-wrap:wrap;}
+  .main-nav .game-btn{min-height:42px;padding:9px 12px;font-size:.92rem;}
+  #maze-status,#memory-status{width:100%;}
+  #maze-wrapper{width:100%;height:auto;max-height:none;aspect-ratio:1/1;}
+  #maze-wrapper canvas{max-width:100%;height:auto;}
+  .game-selection{width:100%;padding:18px 4px 28px;gap:18px;}
+  .game-choice-grid{grid-template-columns:1fr;gap:16px;}
+  .game-choice{min-height:0;height:auto;}
+  .game-choice-art{height:clamp(135px,34vw,190px);}
+  .game-choice-body{padding:18px;}
+  .game-choice-body .game-btn{width:100%;}
+  .memory-view{width:100%;min-height:0;height:auto;overflow:visible;padding:8px 2px 24px;}
+  .memory-topbar{align-items:flex-start;}
+  .memory-actions{width:100%;}
+  .memory-actions .game-btn{flex:1 1 120px;}
+  .memory-board{width:100%;max-width:100%;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;}
+  .memory-card{min-width:0;}
+  .memory-info-card{max-height:calc(100dvh - 24px);}
+}
+@media (max-width:420px){
+  .memory-board{grid-template-columns:repeat(2,minmax(0,1fr));}
+  .game-btn{font-size:.88rem;}
 }
 </style>
 </head>

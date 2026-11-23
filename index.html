@@ -37,6 +37,30 @@ main{width:100%;max-width:none;flex:1 1 auto;min-height:0;padding:0 22px 22px;}
 header nav button.nav-selected{background:var(--mint);color:#102a22;border-color:var(--mint);box-shadow:0 0 0 3px #b9dc8240,0 0 18px #b9dc8266}
 header nav button.nav-selected:hover{background:#d7f39b;color:#102a22}
 </style>
+<style>
+/* Ajustes exclusivos para teléfonos: el diseño de escritorio permanece intacto. */
+@media (max-width:700px){
+  html,body{height:auto;min-height:100%;}
+  body{min-height:100dvh;overflow-x:hidden;overflow-y:auto;}
+  main{flex:0 0 auto;min-height:0;padding:0 14px 24px;}
+  header{padding:14px;gap:10px;}
+  header strong{font-size:clamp(.95rem,4.2vw,1.15rem);}
+  nav{width:100%;gap:8px;}
+  nav button{flex:1 1 auto;min-width:0;padding:10px 9px;font-size:.88rem;}
+  #home{width:100%;}
+  .hero{padding:26px 0 34px;gap:18px;}
+  .hero-art img{width:min(100%,360px);max-width:100%;}
+  #doc{height:auto;min-height:0;padding:22px 0 0;overflow:visible;}
+  #doc .scene{height:auto;min-height:0;grid-template-columns:1fr;overflow:visible;}
+  #doc .scene-card{height:auto;min-height:0;}
+  #doc .scene-visual-card{height:clamp(230px,48dvh,360px);}
+  #doc .scene-content-card{min-height:0;padding:20px 16px;}
+  #doc .scene-content-card .controls{margin-top:18px;}
+  #doc .scene-content-card .controls button{flex:1 1 130px;}
+  #game{height:auto;min-height:0;overflow:visible;padding:0;}
+  #gameFrame{width:100%;height:max(720px,calc(100dvh - 110px));min-height:720px;border-radius:14px;overflow:visible;}
+}
+</style>
 </head>
 <body><header><strong>🌿 GUARDIANES DE LA SELVA</strong><nav><button class="secondary nav-selected" onclick="show('home');selectNav(this)">Inicio</button><button class="secondary" onclick="show('doc');selectNav(this)">Documental</button><button class="secondary" onclick="window.location.href='juego.html'">Juego</button></nav></header><main>
 <section id="home"><div class="hero"><div><h1>Los héroes que vuelan de noche</h1><p>Cuando cae la noche, unos héroes salen para ayudar a mantener viva la selva. Descubramos qué es lo que nos tiene guardado la naturaleza.</p><div class="controls"><button onclick="show('doc')">Comenzar documental</button><button class="secondary" onclick="startGame()">Ir al juego</button></div></div><div class="hero-art"><img src="isla.webp" alt="Isla con un árbol iluminada sobre un fondo natural"></div></div></section>
