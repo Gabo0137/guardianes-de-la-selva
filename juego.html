@@ -764,6 +764,55 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* Ajuste de dimensiones de la barra del Memorama; no modifica el tablero. */
+@media (max-width:700px){
+  body[data-game-screen="memorama"] #game-header{
+    height:auto!important;
+    min-height:0!important;
+    box-sizing:border-box!important;
+    padding:7px 8px!important;
+    gap:5px!important;
+    margin-bottom:8px!important;
+    overflow:visible!important;
+  }
+  body[data-game-screen="memorama"] #game-menu-button{
+    width:36px!important;
+    height:36px!important;
+    min-height:36px!important;
+    padding:4px!important;
+  }
+  body[data-game-screen="memorama"] #game-title-group>div:first-child{
+    width:36px!important;
+    height:36px!important;
+  }
+  body[data-game-screen="memorama"] #game-title-group h1{
+    font-size:clamp(1.3rem,6vw,1.85rem)!important;
+    line-height:1!important;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden){
+    min-height:0!important;
+    height:auto!important;
+    gap:4px!important;
+    align-items:stretch!important;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden) .memory-stat{
+    min-height:43px!important;
+    height:43px!important;
+    padding:4px 2px!important;
+    border-width:1px!important;
+    border-radius:10px!important;
+    font-size:clamp(.62rem,2.6vw,.78rem)!important;
+    line-height:1!important;
+    white-space:nowrap;
+  }
+  body[data-game-screen="memorama"] #memory-status:not(.game-content-hidden) .memory-stat b{
+    margin-top:3px!important;
+    font-size:clamp(.78rem,3.3vw,.98rem)!important;
+    line-height:1!important;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
