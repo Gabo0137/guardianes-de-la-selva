@@ -704,6 +704,18 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
   }
 }
 </style>
+<style>
+/* El gesto dentro del laberinto controla el juego; fuera de él se conserva el scroll. */
+@media (max-width:700px){
+  body[data-game-screen="laberinto"] #maze-wrapper{
+    touch-action:none;
+    overscroll-behavior:contain;
+  }
+  body[data-game-screen="laberinto"] #maze-wrapper canvas{
+    touch-action:none;
+  }
+}
+</style>
 </head>
 <body class="min-h-screen flex flex-col justify-between p-2 sm:p-4 bg-[radial-gradient(ellipse_at_top,_#12362c_0%,_#06120f_85%)]">
     <audio id="game-music" src="MUsic.mp3" preload="none" loop aria-hidden="true"></audio>
@@ -2045,13 +2057,19 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
         const mazeWrapper = document.getElementById('maze-wrapper');
 
         mazeWrapper.addEventListener('touchstart', (e) => {
+            if (gameState.status === 'playing') e.preventDefault();
             if (e.touches.length > 0) {
                 touchStartX = e.touches[0].clientX;
                 touchStartY = e.touches[0].clientY;
             }
-        }, { passive: true });
+        }, { passive: false });
+
+        mazeWrapper.addEventListener('touchmove', (e) => {
+            if (gameState.status === 'playing') e.preventDefault();
+        }, { passive: false });
 
         mazeWrapper.addEventListener('touchend', (e) => {
+            if (gameState.status === 'playing') e.preventDefault();
             if (e.changedTouches.length > 0 && gameState.status === 'playing') {
                 const dx = e.changedTouches[0].clientX - touchStartX;
                 const dy = e.changedTouches[0].clientY - touchStartY;
@@ -2063,7 +2081,7 @@ body[data-game-screen="aventuras"] .game-choice-body .game-btn {
                     }
                 }
             }
-        }, { passive: true });
+        }, { passive: false });
 
         // Botones de inicio, reinicio y sonido
         document.getElementById('btn-start').addEventListener('click', () => {
